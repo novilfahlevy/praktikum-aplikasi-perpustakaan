@@ -38,6 +38,7 @@ def buat_tabel(seed=False) :
 	cursor.execute("""
 		CREATE TABLE IF NOT EXISTS `pengguna` (
 			id_pengguna int primary key auto_increment not null,
+			nama varchar(100) not null,
 			email varchar(100) not null,
 			password text not null,
 			role enum('admin', 'petugas', 'member') not null
