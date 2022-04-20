@@ -2,6 +2,7 @@ import json
 import pwinput
 import bcrypt
 
+from termcolor import colored
 from os import path, stat
 from helper import bersihkan_console
 from database import koneksi
@@ -41,7 +42,7 @@ def login(message=None) :
 		password = pwinput.pwinput(prompt='Password : ')
 		
 		conn = koneksi()
-		cursor = conn.cursor()
+		cursor = conn.cursor(dictionary=True)
 
 		akun = cursor.execute('SELECT * FROM pengguna WHERE email = %s LIMIT 1;', (email,))
 		akun = cursor.fetchall()
@@ -53,12 +54,12 @@ def login(message=None) :
 		# cek akun ada
 		if len(akun) > 0 :
 			akun = akun[0]
-			password_hash = akun[2]
+			password_hash = akun['password']
 			cek_password = bcrypt.checkpw(password.encode('utf-8'), password_hash.encode('utf-8'))
 			
 			# cek password
 			if cek_password :
-				buat_session(json.dumps({ 'id': akun[0], 'email': akun[1], 'role': akun[3] }))
+				buat_session(json.dumps({ 'id': akun['id_pengguna'], 'email': akun['email'], 'role': akun['role'] }))
 				return True
 			
 			return login(colored('Password salah', 'red'))

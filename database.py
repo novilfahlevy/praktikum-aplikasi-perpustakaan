@@ -30,10 +30,12 @@ def koneksi() :
 
 		print(message)
 
-def buat_tabel(seed=False) :
+def buat_tabel(seed=False, truncate=False) :
 	# buat tabel
 	conn = koneksi()
 	cursor = conn.cursor()
+
+	if truncate : cursor.execute('DROP TABLE pengguna, penerbit, pengadaan, detail_pengadaan, buku, peminjaman;')
 
 	cursor.execute("""
 		CREATE TABLE IF NOT EXISTS `pengguna` (
@@ -41,6 +43,8 @@ def buat_tabel(seed=False) :
 			nama varchar(100) not null,
 			email varchar(100) not null,
 			password text not null,
+			nomor_telepon varchar(15) not null,
+			alamat text not null,
 			role enum('admin', 'petugas', 'member') not null
 		);
 	""")
@@ -101,13 +105,13 @@ def buat_tabel(seed=False) :
 	if seed :
 		cursor.execute("""
 			INSERT INTO pengguna VALUES
-			(null, %s, %s, %s),
-			(null, %s, %s, %s),
-			(null, %s, %s, %s);""",
+			(null, %s, %s, %s, %s, %s, %s),
+			(null, %s, %s, %s, %s, %s, %s),
+			(null, %s, %s, %s, %s, %s, %s);""",
 			(
-				'admin@gmail.com', hash_password('12345'), 'admin',
-				'petugas@gmail.com', hash_password('12345'), 'petugas',
-				'member@gmail.com', hash_password('12345'), 'member',
+				'Admin', 'admin@gmail.com', hash_password('12345'), '089609233200', 'Jl. Langsat No. 64', 'admin',
+				'Petugas', 'petugas@gmail.com', hash_password('12345'), '089609233200', 'Jl. Langsat No. 64', 'petugas',
+				'Member', 'member@gmail.com', hash_password('12345'), '089609233200', 'Jl. Langsat No. 64', 'member',
 			)
 		)
 
