@@ -6,6 +6,7 @@ from termcolor import colored
 from os import path, stat
 from helper import bersihkan_console
 from database import koneksi
+import app
 
 def cek_session() :
   if path.isfile('session') :
@@ -45,15 +46,13 @@ def login(message=None) :
 		cursor = conn.cursor(dictionary=True)
 
 		akun = cursor.execute('SELECT * FROM pengguna WHERE email = %s LIMIT 1;', (email,))
-		akun = cursor.fetchall()
+		akun = cursor.fetchone()
 
 		cursor.close()
-
 		print('Loading...')
 
 		# cek akun ada
-		if len(akun) > 0 :
-			akun = akun[0]
+		if akun :
 			password_hash = akun['password']
 			cek_password = bcrypt.checkpw(password.encode('utf-8'), password_hash.encode('utf-8'))
 			
@@ -72,4 +71,4 @@ def login(message=None) :
 
 def logout() :
   hapus_session()
-  return login()
+  return app.main()
