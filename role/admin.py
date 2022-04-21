@@ -21,8 +21,7 @@ def menu_admin() :
 		elif menu == '2' :
 			return Penerbit.menu_manajemen_penerbit()
 		elif menu == '3' :
-			# return menu_manajemen_pengadaan()
-			print('Pengadaan')
+			return Pengadaan.menu_manajemen_pengadaan()
 		elif menu == '4' :
 			return logout()
 		else :
@@ -35,6 +34,31 @@ class Petugas :
 	"""
 		MANAJEMEN PETUGAS
 	"""
+
+	def menu_manajemen_petugas() :
+		try :
+			bersihkan_console()
+
+			print(f"Admin > {colored('Manajemen Petugas', 'blue')}")
+			print('[1] Tampilkan')
+			print('[2] Tambah')
+			print('[3] Hapus')
+			print(colored('[4] Kembali', 'yellow'))
+			menu = input('Pilih:\n> ')
+
+			if menu == '1' :
+				return Petugas.tampilkan_petugas()
+			elif menu == '2' :
+				return Petugas.tambah_petugas()
+			elif menu == '3' :
+				return Petugas.hapus_petugas()
+			elif menu == '4' :
+				return menu_admin()
+			else :
+				return Petugas.menu_manajemen_petugas()
+
+		except KeyboardInterrupt :
+			return menu_admin()
 
 	def menu_manajemen_petugas() :
 		try :
@@ -457,3 +481,116 @@ class Penerbit :
 
 		except KeyboardInterrupt :
 			return Penerbit.menu_manajemen_penerbit()
+
+class Pengadaan :
+	"""
+		PENGADAAN
+	"""
+
+	def menu_manajemen_pengadaan() :
+		try :
+			bersihkan_console()
+
+			print(f"Admin > {colored('Pengadaan', 'blue')}")
+			print('[1] Tampilkan')
+			print('[2] Tambah')
+			print('[3] Hapus')
+			print(colored('[4] Kembali', 'yellow'))
+			menu = input('Pilih:\n> ')
+
+			if menu == '1' :
+				return Pengadaan.tampilkan_pengadaan()
+			elif menu == '2' :
+				# return Petugas.tambah_petugas()
+				print('Tambah')
+			elif menu == '3' :
+				# return Petugas.hapus_petugas()
+				print('Hapus')
+			elif menu == '4' :
+				return menu_admin()
+			else :
+				return Pengadaan.menu_manajemen_petugas()
+
+		except KeyboardInterrupt :
+			return menu_admin()
+
+	def tampilkan_pengadaan() :
+		try :
+			bersihkan_console()
+			print(f'Admin > Pengadaan > {colored("Tampilkan Pengadaan", "blue")}')
+
+			conn = koneksi()
+			cursor = conn.cursor(dictionary=True)
+
+			pengadaan = cursor.execute((
+				'SELECT pengadaan.id_pengadaan, pengadaan.tanggal AS tanggal_pengadaan, penerbit.nama AS nama_penerbit FROM pengadaan'
+				' JOIN penerbit ON pengadaan.id_penerbit = penerbit.id_penerbit;'
+			))
+			pengadaan = cursor.fetchall()
+
+			tabel = PrettyTable()
+			tabel.title = 'Daftar Pengadaan'
+			tabel.field_names = ('ID', 'Tanggal', 'Penerbit')
+
+			_pengadaan = []
+
+			for i in range(len(pengadaan)) :
+				_pengadaan.append((
+					pengadaan[i]['id_pengadaan'],
+					pengadaan[i]['tanggal_pengadaan'],
+					pengadaan[i]['nama_penerbit']
+				))
+
+			tabel.add_rows(_pengadaan)
+			print(tabel)
+
+			if cursor.rowcount :
+				id_pengadaan = input('Pilih ID:\n> ')
+				pengadaan = next(filter(lambda pengadaan: pengadaan['id_pengadaan'] == id_pengadaan, _pengadaan))
+				tanggal = pengadaan['tanggal_pengadaan']
+				penerbit = pengadaan['nama_penerbit']
+
+				detail_pengadaan = cursor.execute(
+					(
+						'SELECT detail.id_detail_pengadaan, buku.isbn, buku.judul, detail.jumlah, detail.harga_satuan AS harga '
+						'FROM detail_pengadaan AS detail WHERE id_pengadaan = %s '
+						'JOIN buku ON detail.isbn = buku.isbn;'
+					),
+					(id_pengadaan,)
+				)
+				detail_pengadaan = cursor.fetchall()
+
+				tabel = PrettyTable()
+				tabel.title = f'Pengadaan tanggal {tanggal} dari {penerbit}'
+				tabel.field_names = ('ID', 'ISBN', 'Judul Buku', 'Jumlah', 'Harga', 'Sub Harga')
+
+				for i in range(len(detail_pengadaan)) :
+					jumlah = detail_pengadaan[i]['jumlah']
+					harga = detail_pengadaan[i]['harga']
+					tabel.add_row((
+						detail_pengadaan[i]['id_detail_pengadaan'],
+						detail_pengadaan[i]['isbn'],
+						detail_pengadaan[i]['judul'],
+						jumlah,
+						harga,
+						harga * jumlah
+					))
+
+				bersihkan_console()
+				print(f'Admin > Pengadaan > Tampilkan Pengadaan > {colored(f"Pengadaan tanggal {tanggal}", "blue")}')
+				print(tabel)
+			
+			else: input('...')
+
+			return Pengadaan.menu_manajemen_pengadaan()
+
+		except KeyboardInterrupt :
+			return Pengadaan.menu_manajemen_pengadaan()
+
+	# def tambah_pengadaan() :
+	# 	try :
+	# 		bersihkan_console()
+	# 		print(f'Admin > Pengadaan > {colored("Tambah Pengadaan", "blue")}')
+
+	# 	except KeyboardInterrupt :
+	# 		return Pengadaan.menu_manajemen_pengadaan()

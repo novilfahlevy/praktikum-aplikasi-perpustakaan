@@ -62,7 +62,6 @@ def buat_tabel(seed=False, truncate=False) :
 		CREATE TABLE IF NOT EXISTS `pengadaan` (
 			id_pengadaan int primary key auto_increment not null,
 			id_penerbit int not null,
-			id_petugas int not null,
 			tanggal date not null
 		);
 	""")
