@@ -87,6 +87,7 @@ def buat_tabel(seed=False, truncate=False) :
 	cursor.execute("""
 		CREATE TABLE IF NOT EXISTS `peminjaman` (
 			id_peminjaman int primary key auto_increment not null,
+			kode varchar(6),
 			id_petugas int,
 			id_member int,
 			id_buku int,

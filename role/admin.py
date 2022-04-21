@@ -1,10 +1,9 @@
-from helper import bersihkan_console
+from helper import bersihkan_console, hash_password
 from termcolor import colored
 from auth import logout
 from database import koneksi
 from prettytable import PrettyTable
-
-from helper import hash_password
+import re
 
 def menu_admin() :
 	try :
@@ -69,23 +68,23 @@ def tampilkan_tabel_petugas(pakai_id=False) :
 	tabel.title = 'Data Petugas'
 	tabel.field_names = ('ID' if pakai_id else 'No.', 'Nama', 'Email', 'Nomor Telepon', 'Alamat')
 	
-	for p in range(len(petugas)) :
+	for i in range(len(petugas)) :
 		tabel.add_row((
-			petugas[p]['id_pengguna'] if pakai_id else (p + 1),
-			petugas[p]['nama'],
-			petugas[p]['email'],
-			petugas[p]['nomor_telepon'],
-			petugas[p]['alamat']
+			petugas[i]['id_pengguna'] if pakai_id else (i + 1),
+			petugas[i]['nama'],
+			petugas[i]['email'],
+			petugas[i]['nomor_telepon'],
+			petugas[i]['alamat']
 		))
 
 	print(tabel)
 
-def tampilkan_petugas(message=None) :
+def tampilkan_petugas(pesan=None) :
 	try :
 		bersihkan_console()
 		print(f"Admin > Manajemen Petugas > {colored('Tampilkan Petugas', 'blue')}")
 
-		if message : print(message)
+		if pesan : print(pesan)
 
 		tampilkan_tabel_petugas()
 		input('...')
@@ -95,14 +94,17 @@ def tampilkan_petugas(message=None) :
 	except KeyboardInterrupt :
 		return menu_manajemen_petugas()
 
-def tambah_petugas() :
+def tambah_petugas(pesan=None) :
 	try :
 		bersihkan_console()
 		print(f"Admin > Manajemen Petugas > {colored('Tambah Petugas', 'blue')}")
 
+		if pesan : print(pesan) # pesan tambahan, opsional
+
 		conn = koneksi()
 		cursor = conn.cursor()
 		
+		# input data petugas
 		nama          = input('Nama             : ')
 		email         = input('Email            : ')
 		password      = input('Password (12345) : ') or '12345'
@@ -110,9 +112,19 @@ def tambah_petugas() :
 		alamat        = input('Alamat           : ')
 		role          = 'petugas'
 
+		# validasi input
+		aturan_email = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+		if not nama : return tambah_petugas(colored('Nama tidak boleh kosong.', 'red'))
+		if not email : return tambah_petugas(colored('Email tidak boleh kosong.', 'red'))
+		if not re.fullmatch(aturan_email, email) : return tambah_petugas(colored('Email tidak valid.', 'red'))
+		if not nomor_telepon : return tambah_petugas(colored('Nomor telepon tidak boleh kosong.', 'red'))
+		if not nomor_telepon.isnumeric() : return tambah_petugas(colored('Nomor telepon tidak valid.', 'red'))
+		if not alamat : return tambah_petugas(colored('Alamat tidak boleh kosong.', 'red'))
+
 		bersihkan_console()
 		print(f"Admin > Manajemen Petugas > {colored('Tambah Petugas', 'blue')}")
 
+		# review dan konfirmasi kembali data petugas
 		tabel_review = PrettyTable()
 		tabel_review.title = 'Konfirmasi Data Petugas'
 		tabel_review.field_names = ('Data', 'Input')
@@ -130,7 +142,7 @@ def tambah_petugas() :
 		print('Loading...')
 		
 		cursor.execute(
-			'INSERT INTO pengguna VALUES (null, %s, %s, %s, %s, %s, %s)',
+			'INSERT INTO pengguna VALUES (null, %s, %s, %s, %s, %s, %s, now())',
 			(nama, email, hash_password(password), nomor_telepon, alamat, role,)
 		)
 
@@ -138,7 +150,10 @@ def tambah_petugas() :
 		cursor.close()
 
 		if cursor.rowcount :
-			return tampilkan_petugas(colored('Berhasil menambah petugas.', 'green'))
+			return tampilkan_petugas(pesan=colored('Berhasil menambah petugas.', 'green'))
+
+		# jika gagal menyimpan data
+		return tambah_petugas(pesan=colored('Terjadi kesalahan, silakan coba lagi.', 'red'))
 
 	except KeyboardInterrupt :
 		return menu_manajemen_petugas()
@@ -151,18 +166,22 @@ def cek_petugas(id_petugas) :
 	cursor.close()
 	return petugas[0]
 
-def hapus_petugas(message=None) :
+def hapus_petugas(pesan=None) :
 	try :
 		bersihkan_console()
 		print(f"Admin > Manajemen Petugas > {colored('Hapus Petugas', 'blue')}")
 
-		if message : print(message)
+		if pesan : print(pesan) # pesan tambahan, opsional
 
 		tampilkan_tabel_petugas(pakai_id=True)
 		id_petugas = input('Pilih ID:\n> ')
 
 		if id_petugas :
 			if cek_petugas(id_petugas) :
+				# konfirmasi penghapusan
+				input(colored('Tekan untuk mengonfirmasi penghapusan...', 'yellow'))
+				print('Loading...')
+
 				conn = koneksi()
 				cursor = conn.cursor()
 
@@ -172,11 +191,15 @@ def hapus_petugas(message=None) :
 				cursor.close()
 
 				if cursor.rowcount :
-					return tampilkan_petugas()
+					return tampilkan_petugas(pesan=colored('Petugas berhasil dihapus.', 'green'))
+
+				# jika gagal menghapus data
+				return tampilkan_petugas(pesan=colored('Terjadi kesalahan, silakan coba lagi.', 'red'))
+
 			else :
-				return hapus_petugas(message=colored('ID petugas tidak ditemukan.', 'red'))
+				return hapus_petugas(pesan=colored('ID petugas tidak ditemukan.', 'red'))
 		
-		return hapus_petugas(message=colored('Mohon pilih ID petugas.', 'red'))
+		return hapus_petugas(pesan=colored('Mohon pilih ID petugas.', 'red'))
 
 	except KeyboardInterrupt :
 		return menu_manajemen_petugas()
