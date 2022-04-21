@@ -2,9 +2,8 @@ from auth import login, ambil_session
 
 # from database import buat_tabel
 
-from modules.admin import menu_admin
-from modules.petugas import menu_petugas
-from modules.member import menu_member
+from role.admin import menu_admin
+from role.petugas import menu_petugas
 
 def main() :
 	# buat_tabel(truncate=True, seed=True)
