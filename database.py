@@ -53,6 +53,8 @@ def buat_tabel(seed=False, truncate=False) :
 		CREATE TABLE IF NOT EXISTS `penerbit` (
 			id_penerbit int primary key auto_increment not null,
 			nama varchar(100) not null,
+			email varchar(100) not null,
+			nomor_telepon varchar(15) not null,
 			alamat text null
 		);
 	""")

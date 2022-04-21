@@ -19,8 +19,7 @@ def menu_admin() :
 		if menu == '1' :
 			return menu_manajemen_petugas()
 		elif menu == '2' :
-			# return menu_manajemen_penerbit()
-			print('Penerbit')
+			return menu_manajemen_penerbit()
 		elif menu == '3' :
 			# return menu_manajemen_pengadaan()
 			print('Pengadaan')
@@ -32,6 +31,9 @@ def menu_admin() :
 	except KeyboardInterrupt :
 		return menu_admin()
 
+"""
+	MANAJEMEN PETUGAS
+"""
 def menu_manajemen_petugas() :
 	try :
 		bersihkan_console()
@@ -203,3 +205,251 @@ def hapus_petugas(pesan=None) :
 
 	except KeyboardInterrupt :
 		return menu_manajemen_petugas()
+
+"""
+	MANAJEMEN PENERBIT
+"""
+def menu_manajemen_penerbit() :
+	try :
+		bersihkan_console()
+
+		print(f"Admin > {colored('Manajemen Penerbit', 'blue')}")
+		print('[1] Tampilkan')
+		print('[2] Tambah')
+		print('[3] Edit')
+		print('[4] Hapus')
+		print(colored('[5] Kembali', 'yellow'))
+		menu = input('Pilih:\n> ')
+
+		if menu == '1' :
+			return tampilkan_penerbit()
+		elif menu == '2' :
+			return tambah_penerbit()
+		elif menu == '3' :
+			return edit_penerbit()
+		elif menu == '4' :
+			return hapus_penerbit()
+		elif menu == '5' :
+			return menu_admin()
+		else :
+			return menu_manajemen_penerbit()
+
+	except KeyboardInterrupt :
+		return menu_admin()
+
+def tampilkan_tabel_penerbit(pakai_id=False) :
+	conn = koneksi()
+	cursor = conn.cursor(dictionary=True)
+
+	penerbit = cursor.execute('SELECT * FROM penerbit')
+	penerbit = cursor.fetchall()
+
+	tabel = PrettyTable()
+	tabel.title = 'Data Penerbit'
+	tabel.field_names = ('ID' if pakai_id else 'No.', 'Nama', 'Email', 'Nomor Telepon', 'Alamat')
+	
+	for i in range(len(penerbit)) :
+		tabel.add_row((
+			penerbit[i]['id_penerbit'] if pakai_id else (i + 1),
+			penerbit[i]['nama'],
+			penerbit[i]['email'],
+			penerbit[i]['nomor_telepon'],
+			penerbit[i]['alamat']
+		))
+
+	print(tabel)
+
+def tampilkan_penerbit(pesan=None) :
+	try :
+		bersihkan_console()
+		print(f"Admin > Manajemen Penerbit > {colored('Tampilkan Penerbit', 'blue')}")
+
+		if pesan : print(pesan)
+
+		tampilkan_tabel_penerbit()
+		input('...')
+
+		return menu_manajemen_penerbit()
+		
+	except KeyboardInterrupt :
+		return menu_manajemen_penerbit()
+
+def tambah_penerbit(pesan=None) :
+	try :
+		bersihkan_console()
+		print(f"Admin > Manajemen Penerbit > {colored('Tambah Penerbit', 'blue')}")
+
+		if pesan : print(pesan) # pesan tambahan, opsional
+
+		conn = koneksi()
+		cursor = conn.cursor()
+		
+		# input data penerbit
+		nama          = input('Nama          : ')
+		email         = input('Email         : ')
+		nomor_telepon = input('Nomor Telepon : ')
+		alamat        = input('Alamat        : ')
+
+		# validasi input
+		aturan_email = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+		if not nama : return tambah_penerbit(colored('Nama tidak boleh kosong.', 'red'))
+		if not email : return tambah_penerbit(colored('Email tidak boleh kosong.', 'red'))
+		if not re.fullmatch(aturan_email, email) : return tambah_penerbit(colored('Email tidak valid.', 'red'))
+		if not nomor_telepon : return tambah_penerbit(colored('Nomor telepon tidak boleh kosong.', 'red'))
+		if not nomor_telepon.isnumeric() : return tambah_penerbit(colored('Nomor telepon tidak valid.', 'red'))
+		if not alamat : return tambah_penerbit(colored('Alamat tidak boleh kosong.', 'red'))
+
+		bersihkan_console()
+		print(f"Admin > Manajemen Penerbit > {colored('Tambah Penerbit', 'blue')}")
+
+		# review dan konfirmasi kembali data penerbit
+		tabel_review = PrettyTable()
+		tabel_review.title = 'Konfirmasi Data Penerbit'
+		tabel_review.field_names = ('Data', 'Input')
+		tabel_review.align = 'l'
+		tabel_review.add_rows((
+			('Nama         ', nama),
+			('Email        ', email),
+			('Nomor Telepon', nomor_telepon),
+			('Alamat       ', alamat),
+		))
+
+		print(tabel_review)
+		input('Tekan untuk konfirmasi...')
+		print('Loading...')
+		
+		cursor.execute(
+			'INSERT INTO penerbit VALUES (null, %s, %s, %s, %s)',
+			(nama, email, nomor_telepon, alamat)
+		)
+
+		conn.commit()
+		cursor.close()
+
+		if cursor.rowcount :
+			return tampilkan_penerbit(pesan=colored('Berhasil menambah penerbit.', 'green'))
+
+		# jika gagal menyimpan data
+		return tambah_penerbit(pesan=colored('Terjadi kesalahan, silakan coba lagi.', 'red'))
+
+	except KeyboardInterrupt :
+		return menu_manajemen_penerbit()
+
+def edit_penerbit(pesan=None) :
+	try :
+		bersihkan_console()
+		print(f"Admin > Manajemen Penerbit > {colored('Edit Penerbit', 'blue')}")
+
+		if pesan : print(pesan) # pesan tambahan, opsional
+
+		conn = koneksi()
+		cursor = conn.cursor(dictionary=True)
+
+		tampilkan_tabel_penerbit(pakai_id=True)
+		id_penerbit = input('Pilih ID:\n> ')
+
+		if id_penerbit :
+			penerbit = cursor.execute('SELECT * FROM penerbit WHERE id_penerbit = %s', (id_penerbit,))
+			penerbit = cursor.fetchone()
+			if penerbit :
+				# input data penerbit
+				nama          = input(f'Nama ({penerbit["nama"]})                   : ') or penerbit["nama"]
+				email         = input(f'Email ({penerbit["email"]})                 : ') or penerbit["email"]
+				nomor_telepon = input(f'Nomor Telepon ({penerbit["nomor_telepon"]}) : ') or penerbit["nomor_telepon"]
+				alamat        = input(f'Alamat ({penerbit["alamat"]})               : ') or penerbit["alamat"]
+
+				# validasi input
+				aturan_email = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+				if not nama : return edit_penerbit(colored('Nama tidak boleh kosong.', 'red'))
+				if not email : return edit_penerbit(colored('Email tidak boleh kosong.', 'red'))
+				if not re.fullmatch(aturan_email, email) : return edit_penerbit(colored('Email tidak valid.', 'red'))
+				if not nomor_telepon : return edit_penerbit(colored('Nomor telepon tidak boleh kosong.', 'red'))
+				if not nomor_telepon.isnumeric() : return edit_penerbit(colored('Nomor telepon tidak valid.', 'red'))
+				if not alamat : return edit_penerbit(colored('Alamat tidak boleh kosong.', 'red'))
+
+				bersihkan_console()
+				print(f"Admin > Manajemen Penerbit > {colored('Edit Penerbit', 'blue')}")
+
+				# review dan konfirmasi kembali data penerbit
+				tabel_review = PrettyTable()
+				tabel_review.title = 'Konfirmasi Data Penerbit'
+				tabel_review.field_names = ('Data', 'Input')
+				tabel_review.align = 'l'
+				tabel_review.add_rows((
+					('Nama         ', nama),
+					('Email        ', email),
+					('Nomor Telepon', nomor_telepon),
+					('Alamat       ', alamat),
+				))
+
+				print(tabel_review)
+				input('Tekan untuk konfirmasi...')
+				print('Loading...')
+				
+				cursor.execute(
+					'UPDATE penerbit SET nama = %s, email = %s, nomor_telepon = %s, alamat = %s WHERE id_penerbit = %s',
+					(nama, email, nomor_telepon, alamat, id_penerbit)
+				)
+
+				conn.commit()
+				cursor.close()
+
+				if cursor.rowcount :
+					return tampilkan_penerbit(pesan=colored('Berhasil mengedit penerbit.', 'green'))
+
+				# jika gagal menyimpan data
+				return edit_penerbit(pesan=colored('Terjadi kesalahan, silakan coba lagi.', 'red'))
+
+			else :
+				return edit_penerbit(pesan=colored('ID penerbit tidak ditemukan.', 'red'))
+		
+		return edit_penerbit(pesan=colored('Mohon pilih ID penerbit.', 'red'))
+
+	except KeyboardInterrupt :
+		return menu_manajemen_penerbit()
+
+def cek_penerbit(id_penerbit) :
+	conn = koneksi()
+	cursor = conn.cursor()
+	penerbit = cursor.execute('SELECT COUNT(id_penerbit) FROM penerbit WHERE id_penerbit = %s', (id_penerbit,))
+	penerbit = cursor.fetchone()
+	cursor.close()
+	return penerbit[0]
+
+def hapus_penerbit(pesan=None) :
+	try :
+		bersihkan_console()
+		print(f"Admin > Manajemen Penerbit > {colored('Hapus Penerbit', 'blue')}")
+
+		if pesan : print(pesan) # pesan tambahan, opsional
+
+		tampilkan_tabel_penerbit(pakai_id=True)
+		id_penerbit = input('Pilih ID:\n> ')
+
+		if id_penerbit :
+			if cek_penerbit(id_penerbit) :
+				# konfirmasi penghapusan
+				input(colored('Tekan untuk mengonfirmasi penghapusan...', 'yellow'))
+				print('Loading...')
+
+				conn = koneksi()
+				cursor = conn.cursor()
+
+				cursor.execute('DELETE FROM penerbit WHERE id_penerbit = %s', (id_penerbit,))
+
+				conn.commit()
+				cursor.close()
+
+				if cursor.rowcount :
+					return tampilkan_penerbit(pesan=colored('Penerbit berhasil dihapus.', 'green'))
+
+				# jika gagal menghapus data
+				return tampilkan_penerbit(pesan=colored('Terjadi kesalahan, silakan coba lagi.', 'red'))
+
+			else :
+				return hapus_penerbit(pesan=colored('ID penerbit tidak ditemukan.', 'red'))
+		
+		return hapus_penerbit(pesan=colored('Mohon pilih ID penerbit.', 'red'))
+
+	except KeyboardInterrupt :
+		return menu_manajemen_penerbit()
