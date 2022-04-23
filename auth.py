@@ -5,7 +5,7 @@ import bcrypt
 from termcolor import colored
 from os import path, stat
 from helper import bersihkan_console
-from database import koneksi
+from database import sql
 import app
 
 def cek_session() :
@@ -41,14 +41,12 @@ def login(message=None) :
 
 		email = input('Email    : ')
 		password = pwinput.pwinput(prompt='Password : ')
-		
-		conn = koneksi()
-		cursor = conn.cursor(dictionary=True)
 
-		akun = cursor.execute('SELECT * FROM pengguna WHERE email = %s LIMIT 1;', (email,))
-		akun = cursor.fetchone()
-
-		cursor.close()
+		akun = sql(
+			query='SELECT * FROM pengguna WHERE email = %s LIMIT 1;',
+			data=(email,),
+			hasil=lambda cursor: cursor.fetchone()
+		)
 		print('Loading...')
 
 		# cek akun ada

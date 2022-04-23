@@ -99,7 +99,6 @@ def buat_tabel(seed=False, truncate=False) :
 		);
 	""")
 	cursor.execute('ALTER TABLE `pengadaan` ADD FOREIGN KEY (`id_penerbit`) REFERENCES `penerbit` (`id_penerbit`);')
-	cursor.execute('ALTER TABLE `pengadaan` ADD FOREIGN KEY (`id_petugas`) REFERENCES `pengguna` (`id_pengguna`);')
 	cursor.execute('ALTER TABLE `detail_pengadaan` ADD FOREIGN KEY (`id_pengadaan`) REFERENCES `pengadaan` (`id_pengadaan`);')
 	cursor.execute('ALTER TABLE `peminjaman` ADD FOREIGN KEY (`id_petugas`) REFERENCES `pengguna` (`id_pengguna`);')
 	cursor.execute('ALTER TABLE `peminjaman` ADD FOREIGN KEY (`id_member`) REFERENCES `pengguna` (`id_pengguna`);')
@@ -121,3 +120,20 @@ def buat_tabel(seed=False, truncate=False) :
 		conn.commit()
 
 	cursor.close()
+
+def sql(query, data = [], hasil=None) :
+	try :
+		conn = koneksi()
+		cursor = conn.cursor(dictionary=True)
+
+		cursor.execute(query, data)
+		result = hasil(cursor) if hasil is not None else hasil
+
+		conn.commit()
+		cursor.close()
+		conn.close()
+	
+		return result
+	except :
+		conn.rollback()
+		return None
