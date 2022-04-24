@@ -15,6 +15,7 @@ from role.manajemen.peminjaman import Peminjaman
 class App :
 	def __init__(self):
 		self.auth = Auth(app=self)
+
 		self.petugas = Petugas()
 		self.penerbit = Penerbit()
 		self.pengadaan = Pengadaan()
@@ -39,11 +40,19 @@ class App :
 
 		self.main()
 
-	def main(self) :
+	def main(self, force_close=False) :
 		# buat_tabel(truncate=True, seed=True)
-		if self.auth.login() :
+		if force_close is not True :
 			session = self.auth.ambil_session(ke_json=True)
-			role = session['role']
+			if session is not None :
+				self.auth.session = session
+				return self.menu(self.auth.session['role'])
 
-			if role == 'admin' 		 : return self.role_admin.menu_admin()
-			elif role == 'petugas' : return self.role_petugas.menu_petugas()
+		akun = self.auth.login()
+		if akun is not None :
+			self.auth.session = akun
+			return self.menu(self.auth.session['role'])
+
+	def menu(self, role) :
+		if role == 'admin' 		 : return self.role_admin.menu_admin()
+		elif role == 'petugas' : return self.role_petugas.menu_petugas()

@@ -10,6 +10,7 @@ from database import sql
 class Auth :
 	def __init__(self, app) :
 		self.app = app
+		self.session = None
 
 	def cek_session(self) :
 		if path.isfile('session') :
@@ -59,15 +60,18 @@ class Auth :
 				
 				# cek password
 				if cek_password :
-					self.buat_session(json.dumps({
+					akun = {
 						'kode': akun['kode'],
 						'nama': akun['nama'],
 						'email': akun['email'],
 						'nomor_telepon': akun['nomor_telepon'],
 						'alamat': akun['alamat'],
 						'role': akun['role'],
-					}))
-					return True
+					}
+
+					ingat = input('Ingat akun ini (Y/n)? ').lower() == 'y'
+					if ingat : self.buat_session(json.dumps(akun))
+					return akun
 				
 				return self.login(colored('Password salah', 'red'))
 

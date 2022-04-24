@@ -18,7 +18,7 @@ class Petugas(User) :
 		self.buku.initPetugas(self)
 		self.peminjaman.initPetugas(self)
 
-		self.tersimpan = False
+		self.tersimpan = True
 
 	def menu_petugas(self, pesan=None) :
 		try :
@@ -27,7 +27,7 @@ class Petugas(User) :
 
 			if pesan is not None : print(pesan)
 
-			nama = self.auth.ambil_session(ke_json=True)['nama']
+			nama = self.auth.session['nama']
 			tersimpan = self.tersimpan
 			print(f'{colored("Data tersimpan" if tersimpan else "Data tidak tersimpan", "green" if tersimpan else "red")} | {nama}')
 			print('[1] Member')
@@ -56,10 +56,10 @@ class Petugas(User) :
 				# return self.menu_petugas()
 			elif menu == '5' :
 				return self.edit_profil()
-			elif menu == '5' :
+			elif menu == '6' :
 				return self.auth.logout()
 			else :
 				return self.menu_petugas()
 
 		except KeyboardInterrupt :
-			return self.menu_petugas()	
+			return self.auth.app.main(force_close=True)	

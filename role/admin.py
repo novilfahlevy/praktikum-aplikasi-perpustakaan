@@ -33,7 +33,7 @@ class Admin(User) :
 
 			if pesan is not None : print(pesan)
 
-			nama = self.auth.ambil_session(ke_json=True)['nama']
+			nama = self.auth.session['nama']
 			tersimpan = self.tersimpan
 			print(f'{colored("Data tersimpan" if tersimpan else "Data tidak tersimpan", "green" if tersimpan else "red")} | {nama}')
 			print('[1] Petugas')
@@ -64,7 +64,7 @@ class Admin(User) :
 				return self.menu_admin()
 
 		except KeyboardInterrupt :
-			return self.menu_admin()
+			return self.auth.app.main(force_close=True)
 
 	def simpan_data(self) :
 		try :

@@ -47,6 +47,7 @@ def buat_tabel(seed=False, truncate=False) :
 			nomor_telepon varchar(15) not null,
 			alamat text not null,
 			role enum('admin', 'petugas', 'member') not null,
+			terkonfirmasi boolean not null default 0,
 			tanggal_dibuat datetime not null
 		);
 	""")
@@ -107,9 +108,9 @@ def buat_tabel(seed=False, truncate=False) :
 	if seed :
 		cursor.execute("""
 			INSERT INTO pengguna VALUES
-			(%s, %s, %s, %s, %s, %s, %s, now()),
-			(%s, %s, %s, %s, %s, %s, %s, now()),
-			(%s, %s, %s, %s, %s, %s, %s, now());""",
+			(%s, %s, %s, %s, %s, %s, %s, 0, now()),
+			(%s, %s, %s, %s, %s, %s, %s, 0, now()),
+			(%s, %s, %s, %s, %s, %s, %s, 0, now());""",
 			(
 				kode_generator(4).lower(), 'Admin', 'admin@gmail.com', hash_password('12345'), '089609233200', 'Jl. Langsat No. 64', 'admin',
 				kode_generator(4).lower(), 'Petugas', 'petugas@gmail.com', hash_password('12345'), '089609233200', 'Jl. Langsat No. 64', 'petugas',
