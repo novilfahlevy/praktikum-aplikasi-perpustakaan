@@ -14,6 +14,6 @@ def main() :
 		session = ambil_session(ke_json=True)
 		role = session['role']
 		if role == 'admin' :
-			admin = Admin(Petugas, Penerbit)
+			Admin(Petugas, Penerbit)
 		elif role == 'petugas' :
 			return menu_petugas()

@@ -1,6 +1,6 @@
 from bcrypt import re
 from prettytable import PrettyTable
-from helper import LinkedList, bersihkan_console, hash_password
+from helper import LinkedListOfDict, bersihkan_console, hash_password
 from termcolor import colored
 
 
@@ -11,7 +11,7 @@ class Petugas :
   
 	def __init__(self, admin) :
 		self.admin = admin
-		self.data = LinkedList()
+		self.data = LinkedListOfDict(softdelete=True)
 
 	def menu_manajemen_petugas(self) :
 		try :
@@ -113,10 +113,15 @@ class Petugas :
 			# validasi input
 			aturan_email = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
 			if not nama : return self.tambah_petugas(colored('Nama tidak boleh kosong.', 'red'))
+
 			if not email : return self.tambah_petugas(colored('Email tidak boleh kosong.', 'red'))
+			if self.data.search(email, 'email') : return self.tambah_petugas(colored('Email sudah digunakan.', 'red'))
 			if not re.fullmatch(aturan_email, email) : return self.tambah_petugas(colored('Email tidak valid.', 'red'))
+
 			if not nomor_telepon : return self.tambah_petugas(colored('Nomor telepon tidak boleh kosong.', 'red'))
+			if self.data.search(nomor_telepon, 'nomor_telepon') : return self.tambah_petugas(colored('Nomor telepon sudah digunakan', 'red'))
 			if not nomor_telepon.isnumeric() : return self.tambah_petugas(colored('Nomor telepon tidak valid.', 'red'))
+
 			if not alamat : return self.tambah_petugas(colored('Alamat tidak boleh kosong.', 'red'))
 
 			bersihkan_console()
@@ -164,7 +169,7 @@ class Petugas :
 			self.tampilkan_tabel_petugas(pakai_id=True)
 			id_petugas = input('Pilih ID:\n> ')
 
-			if id_petugas :
+			if id_petugas and id_petugas.isnumeric() :
 				if self.data.search(int(id_petugas), 'id_pengguna') :
 					# konfirmasi penghapusan
 					input(colored('Tekan untuk mengonfirmasi penghapusan...', 'yellow'))

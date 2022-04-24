@@ -1,6 +1,6 @@
 from bcrypt import re
 from prettytable import PrettyTable
-from helper import LinkedList, bersihkan_console
+from helper import LinkedListOfDict, bersihkan_console
 from termcolor import colored
 
 
@@ -11,7 +11,7 @@ class Penerbit :
 
 	def __init__(self, admin) :
 		self.admin = admin
-		self.data = LinkedList()
+		self.data = LinkedListOfDict(softdelete=True)
 	
 	def menu_manajemen_penerbit(self) :
 		try :
@@ -138,7 +138,7 @@ class Penerbit :
 			self.tampilkan_tabel_penerbit(pakai_id=True)
 			id_penerbit = input('Pilih ID:\n> ')
 
-			if id_penerbit :
+			if id_penerbit and id_penerbit.isnumeric() :
 				if self.cek_penerbit(int(id_penerbit)) :
 					penerbit = self.data.search(int(id_penerbit), 'id_penerbit')
 
@@ -207,7 +207,7 @@ class Penerbit :
 			self.tampilkan_tabel_penerbit(pakai_id=True)
 			id_penerbit = input('Pilih ID:\n> ')
 
-			if id_penerbit :
+			if id_penerbit and id_penerbit.isnumeric() :
 				if self.cek_penerbit(int(id_penerbit)) :
 					# konfirmasi penghapusan
 					input(colored('Tekan untuk mengonfirmasi penghapusan...', 'yellow'))

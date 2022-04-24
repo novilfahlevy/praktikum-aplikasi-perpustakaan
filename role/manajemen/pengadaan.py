@@ -143,8 +143,8 @@
 # 			print(f'Penerbit : {pengadaan["nama_penerbit"]}')
 # 			print(f'Tanggal  : {pengadaan["tanggal"]}')
 
-# 			# simpan data pengadaan di dalam linkedlist
-# 			detail_pengadaan = LinkedList()
+# 			# simpan data pengadaan di dalam LinkedListOfDict
+# 			detail_pengadaan = LinkedListOfDict()
 
 # 			input_lagi = True
 # 			while input_lagi :

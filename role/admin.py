@@ -48,8 +48,6 @@ class Admin :
 			return self.menu_admin()
 
 	def simpan_data(self) :
-		sql(query='TRUNCATE TABLE IF EXTSIS pengguna, penerbit;')
-
 		petugas = self.petugas.data
 		penerbit = self.penerbit.data
 
