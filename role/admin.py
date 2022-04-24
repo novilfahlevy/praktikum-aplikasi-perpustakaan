@@ -3,11 +3,15 @@ from helper import bersihkan_console
 from termcolor import colored
 from auth import ambil_session, logout
 
+from role.manajemen.penerbit import Penerbit
+from role.manajemen.petugas import Petugas
+from role.manajemen.pengadaan import Pengadaan
+
 class Admin :
-	def __init__(self, petugas, penerbit) :
+	def __init__(self, petugas: Petugas, penerbit: Penerbit, pengadaan: Pengadaan) :
 		self.petugas = petugas(self)
 		self.penerbit = penerbit(self)
-		# self.pengadaan = pengadaan(self)
+		self.pengadaan = pengadaan(self)
 		self.tersimpan = True
 
 		self.menu_admin()
@@ -34,7 +38,7 @@ class Admin :
 			elif menu == '2' :
 				return self.penerbit.menu_manajemen_penerbit()
 			elif menu == '3' :
-				# return Pengadaan.menu_manajemen_pengadaan()
+				return self.pengadaan.menu_manajemen_pengadaan()
 				print('Pengadaan')
 			elif menu == '4' :
 				if input('Simpan data? (Y/n)').lower() == 'y' :

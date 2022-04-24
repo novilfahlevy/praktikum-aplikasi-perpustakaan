@@ -3,7 +3,6 @@ from prettytable import PrettyTable
 from helper import LinkedListOfDict, bersihkan_console
 from termcolor import colored
 
-
 class Penerbit :
 	"""
 		MANAJEMEN PENERBIT

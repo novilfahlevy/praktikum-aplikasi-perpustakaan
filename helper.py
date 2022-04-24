@@ -1,3 +1,4 @@
+from datetime import datetime
 import os
 import sys
 import bcrypt
@@ -7,6 +8,16 @@ def bersihkan_console() :
 
 def hash_password(password) :
 	return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+
+def currency(number) :
+  return 'Rp{:0,.0f}'.format(number).replace('Rp-', '-Rp')
+
+def cek_tanggal_valid(tanggal, format='%d-%m-%Y') :
+  try :
+    datetime.strptime(tanggal, format)
+    return True
+  except ValueError or EOFError :
+    return False
 
 class Node:
   def __init__(self, data=None): 
