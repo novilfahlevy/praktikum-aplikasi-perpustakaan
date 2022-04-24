@@ -9,15 +9,18 @@ class Pengadaan :
 		PENGADAAN
 	"""
 
-	def __init__(self, admin) :
-		self.admin = admin
+	def __init__(self) :
+		self.admin = None
 		self.data = LinkedListOfDict(softdelete=True)
+
+	def initAdmin(self, admin) :
+		self.admin = admin
 
 	def menu_manajemen_pengadaan(self) :
 		try :
 			bersihkan_console()
 
-			print(f"Admin > {colored('Pengadaan', 'blue')}")
+			print(f"Halaman: Admin > {colored('Pengadaan', 'blue')}")
 			print('[1] Tampilkan')
 			print('[2] Tambah')
 			print('[3] Hapus')
@@ -57,7 +60,7 @@ class Pengadaan :
 	def tampilkan_pengadaan(self, pesan=None) :
 		try :
 			bersihkan_console()
-			print(f"Admin > Pengadaan > {colored('Tampilkan Pengadaan', 'blue')}")
+			print(f"Halaman: Admin > Pengadaan > {colored('Tampilkan Pengadaan', 'blue')}")
 
 			if pesan is not None : print(pesan)
 			
@@ -66,8 +69,9 @@ class Pengadaan :
 
 			if kode_pengadaan :
 				pengadaan = self.data.search(kode_pengadaan, 'kode')
-				penerbit = self.admin.penerbit.data.search(pengadaan['kode_penerbit'], 'kode')
-				return self.tampilkan_detail_pengadaan(penerbit, pengadaan)
+				if pengadaan is not None :
+					penerbit = self.admin.penerbit.data.search(pengadaan['kode_penerbit'], 'kode')
+					return self.tampilkan_detail_pengadaan(penerbit, pengadaan)
 
 			return self.tampilkan_pengadaan(pesan=colored('Mohon pilih kode pengadaan yang tersedia.', 'red'))
 
@@ -77,7 +81,7 @@ class Pengadaan :
 	def tampilkan_detail_pengadaan(self, penerbit, pengadaan) :
 		try :
 			bersihkan_console()
-			print(f"Admin > Pengadaan > Tampilkan Pengadaan > {colored('Pengadaan Tanggal {}'.format(pengadaan['tanggal']), 'blue')}")
+			print(f"Halaman: Admin > Pengadaan > Tampilkan Pengadaan > {colored('Pengadaan Tanggal {}'.format(pengadaan['tanggal']), 'blue')}")
 
 			tabel = PrettyTable()
 			tabel.title = f'Pengadaan Tanggal {pengadaan["tanggal"]} dari {penerbit["nama"]}'
@@ -112,7 +116,7 @@ class Pengadaan :
 	def tambah_pengadaan(self, pesan=None) :
 		try :
 			bersihkan_console()
-			print(f"Admin > Pengadaan > {colored('Tambah Pengadaan', 'blue')}")
+			print(f"Halaman: Admin > Pengadaan > {colored('Tambah Pengadaan', 'blue')}")
 
 			if pesan is not None : print(pesan)
 
@@ -134,7 +138,7 @@ class Pengadaan :
 	def tambah_detail_pengadaan(self, tanggal_pengadaan, kode_penerbit, pesan=None) :
 		try :
 			bersihkan_console()
-			print(f"Admin > Pengadaan > {colored('Tambah Pengadaan', 'blue')}")
+			print(f"Halaman: Admin > Pengadaan > {colored('Tambah Pengadaan', 'blue')}")
 
 			if pesan is not None : print(pesan)
 
@@ -175,7 +179,7 @@ class Pengadaan :
 	def review_tambah_pengadaan(self, pengadaan: dict) :
 		try :
 			bersihkan_console()
-			print(f"Admin > Pengadaan > {colored('Tambah Pengadaan', 'blue')}")
+			print(f"Halaman: Admin > Pengadaan > {colored('Tambah Pengadaan', 'blue')}")
 			
 			penerbit = self.admin.penerbit.data.search(pengadaan['kode_penerbit'], 'kode')
 			print(f'Penerbit : {penerbit["nama"]}')
@@ -215,7 +219,7 @@ class Pengadaan :
 
 	def hapus_pengadaan(self, pesan=None) :
 		bersihkan_console()
-		print(f"Admin > Pengadaan > {colored('Hapus Pengadaan', 'blue')}")
+		print(f"Halaman: Admin > Pengadaan > {colored('Hapus Pengadaan', 'blue')}")
 
 		if pesan is not None : print(pesan)
 

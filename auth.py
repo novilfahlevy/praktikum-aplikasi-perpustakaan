@@ -56,7 +56,14 @@ def login(message=None) :
 			
 			# cek password
 			if cek_password :
-				buat_session(json.dumps({ 'kode': akun['kode'], 'nama': akun['nama'], 'email': akun['email'], 'role': akun['role'] }))
+				buat_session(json.dumps({
+					'kode': akun['kode'],
+					'nama': akun['nama'],
+					'email': akun['email'],
+					'nomor_telepon': akun['nomor_telepon'],
+					'alamat': akun['alamat'],
+					'role': akun['role'],
+				}))
 				return True
 			
 			return login(colored('Password salah', 'red'))

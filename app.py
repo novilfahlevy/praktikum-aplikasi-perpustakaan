@@ -14,7 +14,10 @@ def main() :
 	if login() :
 		session = ambil_session(ke_json=True)
 		role = session['role']
+		petugas = Petugas()
+		penerbit = Penerbit()
+		pengadaan = Pengadaan()
 		if role == 'admin' :
-			Admin(Petugas, Penerbit, Pengadaan)
+			Admin(petugas, penerbit, pengadaan)
 		elif role == 'petugas' :
 			return menu_petugas()

@@ -9,15 +9,18 @@ class Penerbit :
 		MANAJEMEN PENERBIT
 	"""
 
-	def __init__(self, admin) :
-		self.admin = admin
+	def __init__(self) :
+		self.admin = None
 		self.data = LinkedListOfDict(softdelete=True)
+
+	def initAdmin(self, admin) :
+		self.admin = admin
 	
 	def menu_manajemen_penerbit(self) :
 		try :
 			bersihkan_console()
 
-			print(f"Admin > {colored('Manajemen Penerbit', 'blue')}")
+			print(f"Halaman: Admin > {colored('Manajemen Penerbit', 'blue')}")
 			print('[1] Tampilkan')
 			print('[2] Tambah')
 			print('[3] Edit')
@@ -61,7 +64,7 @@ class Penerbit :
 	def tampilkan_penerbit(self, pesan=None) :
 		try :
 			bersihkan_console()
-			print(f"Admin > Manajemen Penerbit > {colored('Tampilkan Penerbit', 'blue')}")
+			print(f"Halaman: Admin > Manajemen Penerbit > {colored('Tampilkan Penerbit', 'blue')}")
 
 			if pesan : print(pesan)
 
@@ -76,7 +79,7 @@ class Penerbit :
 	def tambah_penerbit(self, pesan=None) :
 		try :
 			bersihkan_console()
-			print(f"Admin > Manajemen Penerbit > {colored('Tambah Penerbit', 'blue')}")
+			print(f"Halaman: Admin > Manajemen Penerbit > {colored('Tambah Penerbit', 'blue')}")
 
 			if pesan : print(pesan) # pesan tambahan, opsional
 			
@@ -96,7 +99,7 @@ class Penerbit :
 			if not alamat : return self.tambah_penerbit(colored('Alamat tidak boleh kosong.', 'red'))
 
 			bersihkan_console()
-			print(f"Admin > Manajemen Penerbit > {colored('Tambah Penerbit', 'blue')}")
+			print(f"Halaman: Admin > Manajemen Penerbit > {colored('Tambah Penerbit', 'blue')}")
 
 			# review dan konfirmasi kembali data penerbit
 			tabel_review = PrettyTable()
@@ -130,7 +133,7 @@ class Penerbit :
 	def edit_penerbit(self, pesan=None) :
 		try :
 			bersihkan_console()
-			print(f"Admin > Manajemen Penerbit > {colored('Edit Penerbit', 'blue')}")
+			print(f"Halaman: Admin > Manajemen Penerbit > {colored('Edit Penerbit', 'blue')}")
 
 			if pesan : print(pesan) # pesan tambahan, opsional
 
@@ -157,7 +160,7 @@ class Penerbit :
 					if not alamat : return self.edit_penerbit(colored('Alamat tidak boleh kosong.', 'red'))
 
 					bersihkan_console()
-					print(f"Admin > Manajemen Penerbit > {colored('Edit Penerbit', 'blue')}")
+					print(f"Halaman: Admin > Manajemen Penerbit > {colored('Edit Penerbit', 'blue')}")
 
 					# review dan konfirmasi kembali data penerbit
 					tabel_review = PrettyTable()
@@ -199,7 +202,7 @@ class Penerbit :
 	def hapus_penerbit(self, pesan=None) :
 		try :
 			bersihkan_console()
-			print(f"Admin > Manajemen Penerbit > {colored('Hapus Penerbit', 'blue')}")
+			print(f"Halaman: Admin > Manajemen Penerbit > {colored('Hapus Penerbit', 'blue')}")
 
 			if pesan : print(pesan) # pesan tambahan, opsional
 

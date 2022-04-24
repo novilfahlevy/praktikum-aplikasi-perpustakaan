@@ -1,9 +1,10 @@
+import json
+import pwinput
 from datetime import datetime
-import sys
 from database import sql
-from helper import bersihkan_console
+from helper import bersihkan_console, hash_password
 from termcolor import colored
-from auth import ambil_session, logout
+from auth import ambil_session, buat_session, logout
 
 from role.manajemen.penerbit import Penerbit
 from role.manajemen.petugas import Petugas
@@ -11,9 +12,14 @@ from role.manajemen.pengadaan import Pengadaan
 
 class Admin :
 	def __init__(self, petugas: Petugas, penerbit: Penerbit, pengadaan: Pengadaan) :
-		self.petugas = petugas(self)
-		self.penerbit = penerbit(self)
-		self.pengadaan = pengadaan(self)
+		self.petugas = petugas
+		self.penerbit = penerbit
+		self.pengadaan = pengadaan
+
+		self.petugas.initAdmin(self)
+		self.penerbit.initAdmin(self)
+		self.pengadaan.initAdmin(self)
+
 		self.tersimpan = True
 
 		self.ambil_database()
@@ -22,18 +28,19 @@ class Admin :
 	def menu_admin(self, pesan=None) :
 		try :
 			bersihkan_console()
-			print(colored('Admin', 'blue'))
+			print(f"Halaman: {colored('Admin', 'blue')}")
 
 			if pesan is not None : print(pesan)
 
 			nama = ambil_session(ke_json=True)['nama']
 			tersimpan = self.tersimpan
-			print(f'{nama} | {colored("Data tersimpan" if tersimpan else "Data tidak tersimpan", "green" if tersimpan else "red")}')
+			print(f'{colored("Data tersimpan" if tersimpan else "Data tidak tersimpan", "green" if tersimpan else "red")} | {nama}')
 			print('[1] Petugas')
 			print('[2] Penerbit')
 			print('[3] Pengadaan')
 			print('[4] Simpan Data')
-			print(colored('[5] Keluar', 'yellow'))
+			print('[5] Edit Profil')
+			print(colored('[6] Keluar', 'yellow'))
 			menu = input('Pilih:\n> ')
 
 			if menu == '1' :
@@ -49,12 +56,55 @@ class Admin :
 					return self.menu_admin(pesan=colored('Gagal menyimpan data.', 'red'))
 				return self.menu_admin()
 			elif menu == '5' :
+				return self.edit_profil()
+			elif menu == '6' :
 				return logout()
 			else :
 				return self.menu_admin()
 
 		except KeyboardInterrupt :
 			return self.menu_admin()
+
+	def edit_profil(self, pesan=None) :
+		bersihkan_console()
+		print(f"Halaman: {colored('Edit Profil', 'blue')}")
+
+		if pesan is not None : print(pesan)
+
+		profil = ambil_session(ke_json=True)
+		nama     			= input(f'Nama ({profil["nama"]}) :\n> ') or profil['nama']
+		email    			= input(f'Email ({profil["email"]}) :\n> ') or profil['email']
+		nomor_telepon = input(f'Nomor Telepon ({profil["nomor_telepon"]}) :\n> ') or profil['nomor_telepon']
+		alamat    		= input(f'Alamat ({profil["alamat"]}) :\n> ') or profil['alamat']
+		password 			= pwinput.pwinput(prompt='Password (opsional) :\n> ')
+
+		ganti_profil_berhasil = sql(
+			query='UPDATE pengguna SET nama = %s, email = %s, nomor_telepon = %s, alamat = %s WHERE kode = %s;',
+			data=(nama, email, nomor_telepon, alamat, profil['kode']),
+			hasil=lambda cursor: cursor.rowcount
+		)
+
+		if password != '' :
+			konfirmasi_password = pwinput.pwinput(prompt='Konfirmasi password :\n> ')
+			if password == konfirmasi_password :
+				password = hash_password(password)
+				sql(query='UPDATE pengguna SET password = %s WHERE kode = %s;', data=(password, profil['kode']), hasil=lambda cursor: cursor.rowcount)
+				return logout()
+			else :
+				return self.edit_profil(pesan=colored('Password tidak cocok.', 'red'))
+
+		if ganti_profil_berhasil :
+			buat_session(json.dumps({
+				'kode': profil['kode'],
+				'nama': nama,
+				'email': email,
+				'nomor_telepon': nomor_telepon,
+				'alamat': alamat,
+				'role': profil['role']
+			}))
+			return self.menu_admin(pesan=colored('Berhasil mengganti profil.', 'green'))
+
+		return self.edit_profil(pesan=colored('Gagal mengganti profil, silakan coba lagi.', 'red'))
 
 	def simpan_data(self) :
 		try :

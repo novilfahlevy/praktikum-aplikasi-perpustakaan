@@ -10,15 +10,18 @@ class Petugas :
 		MANAJEMEN PETUGAS
 	"""
   
-	def __init__(self, admin) :
-		self.admin = admin
+	def __init__(self) :
+		self.admin = None
 		self.data = LinkedListOfDict(softdelete=True)
+
+	def initAdmin(self, admin) :
+		self.admin = admin
 
 	def menu_manajemen_petugas(self) :
 		try :
 			bersihkan_console()
 
-			print(f"Admin > {colored('Manajemen Petugas', 'blue')}")
+			print(f"Halaman: Admin > {colored('Manajemen Petugas', 'blue')}")
 			print('[1] Tampilkan')
 			print('[2] Tambah')
 			print('[3] Hapus')
@@ -43,7 +46,7 @@ class Petugas :
 		try :
 			bersihkan_console()
 
-			print(f"Admin > {colored('Manajemen Petugas', 'blue')}")
+			print(f"Halaman: Admin > {colored('Manajemen Petugas', 'blue')}")
 			print('[1] Tampilkan')
 			print('[2] Tambah')
 			print('[3] Hapus')
@@ -84,7 +87,7 @@ class Petugas :
 	def tampilkan_petugas(self, pesan=None) :
 		try :
 			bersihkan_console()
-			print(f"Admin > Manajemen Petugas > {colored('Tampilkan Petugas', 'blue')}")
+			print(f"Halaman: Admin > Manajemen Petugas > {colored('Tampilkan Petugas', 'blue')}")
 
 			if pesan : print(pesan)
 
@@ -99,7 +102,7 @@ class Petugas :
 	def tambah_petugas(self, pesan=None) :
 		try :
 			bersihkan_console()
-			print(f"Admin > Manajemen Petugas > {colored('Tambah Petugas', 'blue')}")
+			print(f"Halaman: Admin > Manajemen Petugas > {colored('Tambah Petugas', 'blue')}")
 
 			if pesan : print(pesan) # pesan tambahan, opsional
 			
@@ -126,7 +129,7 @@ class Petugas :
 			if not alamat : return self.tambah_petugas(colored('Alamat tidak boleh kosong.', 'red'))
 
 			bersihkan_console()
-			print(f"Admin > Manajemen Petugas > {colored('Tambah Petugas', 'blue')}")
+			print(f"Halaman: Admin > Manajemen Petugas > {colored('Tambah Petugas', 'blue')}")
 
 			# review dan konfirmasi kembali data petugas
 			tabel_review = PrettyTable()
@@ -162,7 +165,7 @@ class Petugas :
 	def hapus_petugas(self, pesan=None) :
 		try :
 			bersihkan_console()
-			print(f"Admin > Manajemen Petugas > {colored('Hapus Petugas', 'blue')}")
+			print(f"Halaman: Admin > Manajemen Petugas > {colored('Hapus Petugas', 'blue')}")
 
 			if pesan : print(pesan) # pesan tambahan, opsional
 
