@@ -1,6 +1,7 @@
 from bcrypt import re
 from prettytable import PrettyTable
-from helper import LinkedListOfDict, bersihkan_console
+from data_class import LinkedListOfDict
+from helper import bersihkan_console
 from termcolor import colored
 
 class Penerbit :
@@ -40,15 +41,15 @@ class Penerbit :
 		except KeyboardInterrupt :
 			return self.admin.menu_admin()
 
-	def tampilkan_tabel_penerbit(self, pakai_id=False) :
+	def tampilkan_tabel_penerbit(self, pakai_kode=False) :
 		tabel = PrettyTable()
 		tabel.title = 'Data Penerbit'
-		tabel.field_names = ('ID' if pakai_id else 'No.', 'Nama', 'Email', 'Nomor Telepon', 'Alamat')
+		tabel.field_names = ('Kode' if pakai_kode else 'No.', 'Nama', 'Email', 'Nomor Telepon', 'Alamat')
 		
 		penerbit = self.data.tolist()
 		for i in range(len(penerbit)) :
 			tabel.add_row((
-				penerbit[i]['id_penerbit'] if pakai_id else (i + 1),
+				penerbit[i]['kode'] if pakai_kode else (i + 1),
 				penerbit[i]['nama'],
 				penerbit[i]['email'],
 				penerbit[i]['nomor_telepon'],
@@ -110,11 +111,10 @@ class Penerbit :
 			))
 
 			print(tabel_review)
-			input('Tekan untuk konfirmasi...')
+			input(colored('Tekan untuk konfirmasi...', 'yellow'))
 			print('Loading...')
 			
 			self.data.insert({
-				'id_penerbit': self.data.count() + 1,
 				'nama': nama,
 				'email': email,
 				'nomor_telepon': nomor_telepon,
@@ -134,12 +134,12 @@ class Penerbit :
 
 			if pesan : print(pesan) # pesan tambahan, opsional
 
-			self.tampilkan_tabel_penerbit(pakai_id=True)
-			id_penerbit = input('Pilih ID:\n> ')
+			self.tampilkan_tabel_penerbit(pakai_kode=True)
+			kode_penerbit = input('Pilih kode:\n> ')
 
-			if id_penerbit and id_penerbit.isnumeric() :
-				if self.cek_penerbit(int(id_penerbit)) :
-					penerbit = self.data.search(int(id_penerbit), 'id_penerbit')
+			if kode_penerbit :
+				if self.cek_penerbit(kode_penerbit) :
+					penerbit = self.data.search(kode_penerbit, 'kode')
 
 					# input data penerbit
 					nama          = input(f'Nama ({penerbit["nama"]}):\n> ') or penerbit["nama"]
@@ -172,7 +172,7 @@ class Penerbit :
 					))
 
 					print(tabel_review)
-					input('Tekan untuk konfirmasi...')
+					input(colored('Tekan untuk konfirmasi...', 'yellow'))
 					print('Loading...')
 					
 					self.data.update({
@@ -180,7 +180,7 @@ class Penerbit :
 						'email': email,
 						'nomor_telepon': nomor_telepon,
 						'alamat': alamat
-					}, int(id_penerbit), 'id_penerbit')
+					}, kode_penerbit, 'kode')
 					self.admin.tersimpan = False
 
 					return self.tampilkan_penerbit(pesan=colored('Berhasil mengedit penerbit.', 'green'))
@@ -188,13 +188,13 @@ class Penerbit :
 				else :
 					return self.edit_penerbit(pesan=colored('ID penerbit tidak ditemukan.', 'red'))
 			
-			return self.edit_penerbit(pesan=colored('Mohon pilih ID penerbit.', 'red'))
+			return self.edit_penerbit(pesan=colored('Mohon pilih kode penerbit yang tersedia.', 'red'))
 
 		except KeyboardInterrupt :
 			return self.menu_manajemen_penerbit()
 
-	def cek_penerbit(self, id_penerbit) :
-		return self.data.search(id_penerbit, 'id_penerbit')
+	def cek_penerbit(self, kode) :
+		return self.data.search(kode, 'kode')
 
 	def hapus_penerbit(self, pesan=None) :
 		try :
@@ -203,16 +203,16 @@ class Penerbit :
 
 			if pesan : print(pesan) # pesan tambahan, opsional
 
-			self.tampilkan_tabel_penerbit(pakai_id=True)
-			id_penerbit = input('Pilih ID:\n> ')
+			self.tampilkan_tabel_penerbit(pakai_kode=True)
+			kode_penerbit = input('Pilih kode:\n> ')
 
-			if id_penerbit and id_penerbit.isnumeric() :
-				if self.cek_penerbit(int(id_penerbit)) :
+			if kode_penerbit :
+				if self.cek_penerbit(kode_penerbit) :
 					# konfirmasi penghapusan
 					input(colored('Tekan untuk mengonfirmasi penghapusan...', 'yellow'))
 					print('Loading...')
 					
-					self.data.delete(int(id_penerbit), 'id_penerbit')
+					self.data.delete(kode_penerbit, 'kode')
 					self.admin.tersimpan = False
 
 					return self.tampilkan_penerbit(pesan=colored('Penerbit berhasil dihapus.', 'green'))
@@ -220,7 +220,7 @@ class Penerbit :
 				else :
 					return self.hapus_penerbit(pesan=colored('ID penerbit tidak ditemukan.', 'red'))
 			
-			return self.hapus_penerbit(pesan=colored('Mohon pilih ID penerbit.', 'red'))
+			return self.hapus_penerbit(pesan=colored('Mohon pilih kode penerbit yang tersedia.', 'red'))
 
 		except KeyboardInterrupt :
 			return self.menu_manajemen_penerbit()

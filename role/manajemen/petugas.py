@@ -1,6 +1,7 @@
 from bcrypt import re
 from prettytable import PrettyTable
-from helper import LinkedListOfDict, bersihkan_console, hash_password
+from data_class import LinkedListOfDict
+from helper import bersihkan_console, hash_password
 from termcolor import colored
 
 
@@ -63,15 +64,15 @@ class Petugas :
 		except KeyboardInterrupt :
 			return self.admin.menu_admin()
 
-	def tampilkan_tabel_petugas(self, pakai_id=False) :
+	def tampilkan_tabel_petugas(self, pakai_kode=False) :
 		tabel = PrettyTable()
 		tabel.title = 'Data Petugas'
-		tabel.field_names = ('ID' if pakai_id else 'No.', 'Nama', 'Email', 'Nomor Telepon', 'Alamat')
+		tabel.field_names = ('Kode' if pakai_kode else 'No.', 'Nama', 'Email', 'Nomor Telepon', 'Alamat')
 		
 		petugas = self.data.tolist()
 		for i in range(len(petugas)) :
 			tabel.add_row((
-				petugas[i]['id_pengguna'] if pakai_id else (i + 1),
+				petugas[i]['kode'] if pakai_kode else (i + 1),
 				petugas[i]['nama'],
 				petugas[i]['email'],
 				petugas[i]['nomor_telepon'],
@@ -141,11 +142,10 @@ class Petugas :
 			))
 
 			print(tabel_review)
-			input('Tekan untuk konfirmasi...')
+			input(colored('Tekan untuk konfirmasi...', 'yellow'))
 			print('Loading...')
 			
 			self.data.insert({
-				'id_pengguna': self.data.count() + 1,
 				'nama': nama,
 				'email': email,
 				'password': hash_password(password),
@@ -166,24 +166,24 @@ class Petugas :
 
 			if pesan : print(pesan) # pesan tambahan, opsional
 
-			self.tampilkan_tabel_petugas(pakai_id=True)
-			id_petugas = input('Pilih ID:\n> ')
+			self.tampilkan_tabel_petugas(pakai_kode=True)
+			kode_petugas = input('Pilih kode:\n> ')
 
-			if id_petugas and id_petugas.isnumeric() :
-				if self.data.search(int(id_petugas), 'id_pengguna') :
+			if kode_petugas :
+				if self.data.search(kode_petugas, 'kode') :
 					# konfirmasi penghapusan
 					input(colored('Tekan untuk mengonfirmasi penghapusan...', 'yellow'))
 					print('Loading...')
 					
-					self.data.delete(int(id_petugas), 'id_pengguna')
+					self.data.delete(kode_petugas, 'kode')
 					self.admin.tersimpan = False
 
 					return self.tampilkan_petugas(pesan=colored('Petugas berhasil dihapus.', 'green'))
 
 				else :
-					return self.hapus_petugas(pesan=colored('ID petugas tidak ditemukan.', 'red'))
+					return self.hapus_petugas(pesan=colored('Kode petugas tidak ditemukan.', 'red'))
 			
-			return self.hapus_petugas(pesan=colored('Mohon pilih ID petugas.', 'red'))
+			return self.hapus_petugas(pesan=colored('Mohon pilih kode petugas.', 'red'))
 
 		except KeyboardInterrupt :
 			return self.menu_manajemen_petugas()

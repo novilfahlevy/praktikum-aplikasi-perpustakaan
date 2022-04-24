@@ -1,7 +1,8 @@
+import sys
 import mysql.connector
 from termcolor import colored
 
-from helper import hash_password, bersihkan_console
+from helper import hash_password, bersihkan_console, kode_generator
 
 def koneksi() :
 	# sesuaikan dengan data anda
@@ -39,7 +40,7 @@ def buat_tabel(seed=False, truncate=False) :
 
 	cursor.execute("""
 		CREATE TABLE IF NOT EXISTS `pengguna` (
-			id_pengguna int primary key auto_increment not null,
+			kode char(5) primary key not null,
 			nama varchar(100) not null,
 			email varchar(100) not null,
 			password text null,
@@ -51,7 +52,7 @@ def buat_tabel(seed=False, truncate=False) :
 	""")
 	cursor.execute("""
 		CREATE TABLE IF NOT EXISTS `penerbit` (
-			id_penerbit int primary key auto_increment not null,
+			kode char(5) primary key not null,
 			nama varchar(100) not null,
 			email varchar(100) not null,
 			nomor_telepon varchar(15) not null,
@@ -60,23 +61,23 @@ def buat_tabel(seed=False, truncate=False) :
 	""")
 	cursor.execute("""
 		CREATE TABLE IF NOT EXISTS `pengadaan` (
-			id_pengadaan int primary key auto_increment not null,
-			id_penerbit int not null,
+			kode char(5) primary key not null,
+			kode_penerbit char(5) not null,
 			tanggal date not null
 		);
 	""")
 	cursor.execute("""
 		CREATE TABLE IF NOT EXISTS `detail_pengadaan` (
 			id_detail_pengadaan int primary key auto_increment not null,
-			id_pengadaan int not null,
+			kode_pengadaan char(5) not null,
 			isbn varchar(15) not null,
-			harga_satuan int not null,
+			harga int not null,
 			jumlah int not null
 		);
 	""")
 	cursor.execute("""
 		CREATE TABLE IF NOT EXISTS `buku` (
-			id_buku int primary key auto_increment not null,
+			kode char(5) primary key not null,
 			isbn varchar(15) not null,
 			judul text not null,
 			penulis text null,
@@ -87,33 +88,32 @@ def buat_tabel(seed=False, truncate=False) :
 	""")
 	cursor.execute("""
 		CREATE TABLE IF NOT EXISTS `peminjaman` (
-			id_peminjaman int primary key auto_increment not null,
-			kode varchar(6),
-			id_petugas int,
-			id_member int,
-			id_buku int,
+			kode char(5) primary key not null,
+			kode_petugas char(5) not null,
+			kode_member char(5) not null,
+			kode_buku char(5) not null,
 			tanggal_mulai date not null,
 			tanggal_selesai date not null,
 			tanggal_kembalikan date null,
 			denda int not null
 		);
 	""")
-	cursor.execute('ALTER TABLE `pengadaan` ADD FOREIGN KEY (`id_penerbit`) REFERENCES `penerbit` (`id_penerbit`);')
-	cursor.execute('ALTER TABLE `detail_pengadaan` ADD FOREIGN KEY (`id_pengadaan`) REFERENCES `pengadaan` (`id_pengadaan`);')
-	cursor.execute('ALTER TABLE `peminjaman` ADD FOREIGN KEY (`id_petugas`) REFERENCES `pengguna` (`id_pengguna`);')
-	cursor.execute('ALTER TABLE `peminjaman` ADD FOREIGN KEY (`id_member`) REFERENCES `pengguna` (`id_pengguna`);')
-	cursor.execute('ALTER TABLE `peminjaman` ADD FOREIGN KEY (`id_buku`) REFERENCES `buku` (`id_buku`);')
-
+	cursor.execute('ALTER TABLE `pengadaan` ADD FOREIGN KEY (`kode_penerbit`) REFERENCES `penerbit` (`kode`);')
+	cursor.execute('ALTER TABLE `detail_pengadaan` ADD FOREIGN KEY (`kode_pengadaan`) REFERENCES `pengadaan` (`kode`) ON DELETE CASCADE;')
+	cursor.execute('ALTER TABLE `peminjaman` ADD FOREIGN KEY (`kode_petugas`) REFERENCES `pengguna` (`kode`);')
+	cursor.execute('ALTER TABLE `peminjaman` ADD FOREIGN KEY (`kode_member`) REFERENCES `pengguna` (`kode`);')
+	cursor.execute('ALTER TABLE `peminjaman` ADD FOREIGN KEY (`kode_buku`) REFERENCES `buku` (`kode`);')
+	
 	if seed :
 		cursor.execute("""
 			INSERT INTO pengguna VALUES
-			(null, %s, %s, %s, %s, %s, %s, now()),
-			(null, %s, %s, %s, %s, %s, %s, now()),
-			(null, %s, %s, %s, %s, %s, %s, now());""",
+			(%s, %s, %s, %s, %s, %s, %s, now()),
+			(%s, %s, %s, %s, %s, %s, %s, now()),
+			(%s, %s, %s, %s, %s, %s, %s, now());""",
 			(
-				'Admin', 'admin@gmail.com', hash_password('12345'), '089609233200', 'Jl. Langsat No. 64', 'admin',
-				'Petugas', 'petugas@gmail.com', hash_password('12345'), '089609233200', 'Jl. Langsat No. 64', 'petugas',
-				'Member', 'member@gmail.com', '', '089609233200', 'Jl. Langsat No. 64', 'member',
+				kode_generator(4).lower(), 'Admin', 'admin@gmail.com', hash_password('12345'), '089609233200', 'Jl. Langsat No. 64', 'admin',
+				kode_generator(4).lower(), 'Petugas', 'petugas@gmail.com', hash_password('12345'), '089609233200', 'Jl. Langsat No. 64', 'petugas',
+				kode_generator(4).lower(), 'Member', 'member@gmail.com', '', '089609233200', 'Jl. Langsat No. 64', 'member',
 			)
 		)
 
@@ -128,12 +128,13 @@ def sql(query, data = [], hasil=None) :
 
 		cursor.execute(query, data)
 		result = hasil(cursor) if hasil is not None else hasil
-
 		conn.commit()
-		cursor.close()
-		conn.close()
 	
 		return result
-	except :
+	except Exception as e :
 		conn.rollback()
-		return None
+		sys.exit(e)
+		# return None
+	finally :
+		cursor.close()
+		conn.close()
