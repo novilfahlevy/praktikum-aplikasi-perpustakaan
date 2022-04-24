@@ -6,74 +6,77 @@ from termcolor import colored
 from os import path, stat
 from helper import bersihkan_console
 from database import sql
-import app
 
-def cek_session() :
-  if path.isfile('session') :
-    return stat('session').st_size != 0
+class Auth :
+	def __init__(self, app) :
+		self.app = app
 
-  return False
+	def cek_session(self) :
+		if path.isfile('session') :
+			return stat('session').st_size != 0
 
-def buat_session(data) :
-  f = open('session', 'w')
-  f.write(data)
-  f.close()
+		return False
 
-def ambil_session(ke_json=False) :
-  if cek_session() :
-    f = open('session', 'r')
-    data = json.loads(f.read()) if ke_json else f.read() 
-    f.close()
-    return data
+	def buat_session(self, data) :
+		f = open('session', 'w')
+		f.write(data)
+		f.close()
 
-  return None
+	def ambil_session(self, ke_json=False) :
+		if self.cek_session() :
+			f = open('session', 'r')
+			data = json.loads(f.read()) if ke_json else f.read() 
+			f.close()
+			return data
 
-def hapus_session() :
-  buat_session('')
+		return None
 
-def login(message=None) :
-	try :
-		bersihkan_console()
+	def hapus_session(self) :
+		self.buat_session('')
 
-		print('=== LOGIN ===')
+	def login(self, message=None) :
+		try :
+			bersihkan_console()
 
-		if message is not None : print(message)
+			print('=== LOGIN ===')
 
-		email = input('Email    : ')
-		password = pwinput.pwinput(prompt='Password : ')
+			if message is not None : print(message)
 
-		akun = sql(
-			query='SELECT * FROM pengguna WHERE email = %s LIMIT 1;',
-			data=(email,),
-			hasil=lambda cursor: cursor.fetchone()
-		)
-		print('Loading...')
+			email = input('Email    : ')
+			password = pwinput.pwinput(prompt='Password : ')
 
-		# cek akun ada
-		if akun :
-			password_hash = akun['password']
-			cek_password = bcrypt.checkpw(password.encode('utf-8'), password_hash.encode('utf-8'))
-			
-			# cek password
-			if cek_password :
-				buat_session(json.dumps({
-					'kode': akun['kode'],
-					'nama': akun['nama'],
-					'email': akun['email'],
-					'nomor_telepon': akun['nomor_telepon'],
-					'alamat': akun['alamat'],
-					'role': akun['role'],
-				}))
-				return True
-			
-			return login(colored('Password salah', 'red'))
+			akun = sql(
+				query='SELECT * FROM pengguna WHERE email = %s LIMIT 1;',
+				data=(email,),
+				hasil=lambda cursor: cursor.fetchone()
+			)
+			print('Loading...')
 
-		else :
-			return login(colored('Akun tidak ditemukan', 'yellow'))
+			# cek akun ada
+			if akun :
+				password_hash = akun['password']
+				cek_password = bcrypt.checkpw(password.encode('utf-8'), password_hash.encode('utf-8'))
+				
+				# cek password
+				if cek_password :
+					self.buat_session(json.dumps({
+						'kode': akun['kode'],
+						'nama': akun['nama'],
+						'email': akun['email'],
+						'nomor_telepon': akun['nomor_telepon'],
+						'alamat': akun['alamat'],
+						'role': akun['role'],
+					}))
+					return True
+				
+				return self.login(colored('Password salah', 'red'))
 
-	except KeyboardInterrupt :
-		print('\nBye')
+			else :
+				return self.login(colored('Akun tidak ditemukan', 'yellow'))
 
-def logout() :
-  hapus_session()
-  return app.main()
+		except KeyboardInterrupt :
+			print('\nBye')
+
+	def logout(self) :
+		self.hapus_session()
+		return self.app.main()

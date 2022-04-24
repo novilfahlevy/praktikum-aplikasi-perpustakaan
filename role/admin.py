@@ -1,20 +1,22 @@
-import json
-import pwinput
 from datetime import datetime
 from database import sql
 from helper import bersihkan_console, hash_password
 from termcolor import colored
-from auth import ambil_session, buat_session, logout
 
+from auth import Auth
+from role.user import User
 from role.manajemen.penerbit import Penerbit
 from role.manajemen.petugas import Petugas
 from role.manajemen.pengadaan import Pengadaan
+from role.manajemen.buku import Buku
 
-class Admin :
-	def __init__(self, petugas: Petugas, penerbit: Penerbit, pengadaan: Pengadaan) :
+class Admin(User) :
+	def __init__(self, auth: Auth, petugas: Petugas, penerbit: Penerbit, pengadaan: Pengadaan, buku: Buku) :
+		self.auth = auth
 		self.petugas = petugas
 		self.penerbit = penerbit
 		self.pengadaan = pengadaan
+		self.buku = buku
 
 		self.petugas.initAdmin(self)
 		self.penerbit.initAdmin(self)
@@ -23,7 +25,6 @@ class Admin :
 		self.tersimpan = True
 
 		self.ambil_database()
-		self.menu_admin()
 
 	def menu_admin(self, pesan=None) :
 		try :
@@ -32,7 +33,7 @@ class Admin :
 
 			if pesan is not None : print(pesan)
 
-			nama = ambil_session(ke_json=True)['nama']
+			nama = self.auth.ambil_session(ke_json=True)['nama']
 			tersimpan = self.tersimpan
 			print(f'{colored("Data tersimpan" if tersimpan else "Data tidak tersimpan", "green" if tersimpan else "red")} | {nama}')
 			print('[1] Petugas')
@@ -58,53 +59,12 @@ class Admin :
 			elif menu == '5' :
 				return self.edit_profil()
 			elif menu == '6' :
-				return logout()
+				return self.auth.logout()
 			else :
 				return self.menu_admin()
 
 		except KeyboardInterrupt :
 			return self.menu_admin()
-
-	def edit_profil(self, pesan=None) :
-		bersihkan_console()
-		print(f"Halaman: {colored('Edit Profil', 'blue')}")
-
-		if pesan is not None : print(pesan)
-
-		profil = ambil_session(ke_json=True)
-		nama     			= input(f'Nama ({profil["nama"]}) :\n> ') or profil['nama']
-		email    			= input(f'Email ({profil["email"]}) :\n> ') or profil['email']
-		nomor_telepon = input(f'Nomor Telepon ({profil["nomor_telepon"]}) :\n> ') or profil['nomor_telepon']
-		alamat    		= input(f'Alamat ({profil["alamat"]}) :\n> ') or profil['alamat']
-		password 			= pwinput.pwinput(prompt='Password (opsional) :\n> ')
-
-		ganti_profil_berhasil = sql(
-			query='UPDATE pengguna SET nama = %s, email = %s, nomor_telepon = %s, alamat = %s WHERE kode = %s;',
-			data=(nama, email, nomor_telepon, alamat, profil['kode']),
-			hasil=lambda cursor: cursor.rowcount
-		)
-
-		if password != '' :
-			konfirmasi_password = pwinput.pwinput(prompt='Konfirmasi password :\n> ')
-			if password == konfirmasi_password :
-				password = hash_password(password)
-				sql(query='UPDATE pengguna SET password = %s WHERE kode = %s;', data=(password, profil['kode']), hasil=lambda cursor: cursor.rowcount)
-				return logout()
-			else :
-				return self.edit_profil(pesan=colored('Password tidak cocok.', 'red'))
-
-		if ganti_profil_berhasil :
-			buat_session(json.dumps({
-				'kode': profil['kode'],
-				'nama': nama,
-				'email': email,
-				'nomor_telepon': nomor_telepon,
-				'alamat': alamat,
-				'role': profil['role']
-			}))
-			return self.menu_admin(pesan=colored('Berhasil mengganti profil.', 'green'))
-
-		return self.edit_profil(pesan=colored('Gagal mengganti profil, silakan coba lagi.', 'red'))
 
 	def simpan_data(self) :
 		try :
