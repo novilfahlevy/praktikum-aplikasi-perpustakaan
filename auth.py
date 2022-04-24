@@ -69,7 +69,7 @@ class Auth :
 						'role': akun['role'],
 					}
 
-					ingat = input('Ingat akun ini (Y/n)? ').lower() == 'y'
+					ingat = input(colored('Ingat akun ini (Y/n)? ', 'blue')).lower() == 'y'
 					if ingat : self.buat_session(json.dumps(akun))
 					return akun
 				
