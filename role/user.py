@@ -5,7 +5,7 @@ from termcolor import colored
 import pwinput
 
 
-class User :
+class BaseUser :
 	def edit_profil(self, pesan=None) :
 		bersihkan_console()
 		print(f"Halaman: {colored('Edit Profil', 'blue')}")

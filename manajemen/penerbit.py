@@ -4,17 +4,14 @@ from data_class import LinkedListOfDict
 from helper import bersihkan_console
 from termcolor import colored
 
-class Penerbit :
+class ManajemenPenerbit :
 	"""
 		MANAJEMEN PENERBIT
 	"""
 
-	def __init__(self) :
-		self.admin = None
+	def __init__(self, app) :
+		self.app = app
 		self.data = LinkedListOfDict(softdelete=True)
-
-	def initAdmin(self, admin) :
-		self.admin = admin
 	
 	def menu_manajemen_penerbit(self) :
 		try :
@@ -37,12 +34,12 @@ class Penerbit :
 			elif menu == '4' :
 				return self.hapus_penerbit()
 			elif menu == '5' :
-				return self.admin.menu_admin()
+				return self.app.role_admin.menu_admin()
 			else :
 				return self.menu_manajemen_penerbit()
 
 		except KeyboardInterrupt :
-			return self.admin.menu_admin()
+			return self.app.role_admin.menu_admin()
 
 	def tampilkan_tabel_penerbit(self, pakai_kode=False) :
 		tabel = PrettyTable()
@@ -123,7 +120,7 @@ class Penerbit :
 				'nomor_telepon': nomor_telepon,
 				'alamat': alamat
 			})
-			self.admin.tersimpan = False
+			self.app.role_admin.tersimpan = False
 
 			return self.tampilkan_penerbit(pesan=colored('Berhasil menambah penerbit.', 'green'))
 
@@ -184,7 +181,7 @@ class Penerbit :
 						'nomor_telepon': nomor_telepon,
 						'alamat': alamat
 					}, kode_penerbit, 'kode')
-					self.admin.tersimpan = False
+					self.app.role_admin.tersimpan = False
 
 					return self.tampilkan_penerbit(pesan=colored('Berhasil mengedit penerbit.', 'green'))
 
@@ -216,7 +213,7 @@ class Penerbit :
 					print('Loading...')
 					
 					self.data.delete(kode_penerbit, 'kode')
-					self.admin.tersimpan = False
+					self.app.role_admin.tersimpan = False
 
 					return self.tampilkan_penerbit(pesan=colored('Penerbit berhasil dihapus.', 'green'))
 

@@ -5,17 +5,39 @@ from helper import bersihkan_console, hash_password
 from termcolor import colored
 
 
-class Petugas :
+class ManajemenPetugas :
 	"""
 		MANAJEMEN PETUGAS
 	"""
   
-	def __init__(self) :
-		self.admin = None
+	def __init__(self, app) :
+		self.app = app
 		self.data = LinkedListOfDict(softdelete=True)
 
-	def initAdmin(self, admin) :
-		self.admin = admin
+	def menu_manajemen_petugas(self) :
+		try :
+			bersihkan_console()
+
+			print(f"Halaman: Admin > {colored('Manajemen Petugas', 'blue')}")
+			print('[1] Tampilkan')
+			print('[2] Tambah')
+			print('[3] Hapus')
+			print(colored('[4] Kembali', 'yellow'))
+			menu = input('Pilih:\n> ')
+
+			if menu == '1' :
+				return self.tampilkan_petugas()
+			elif menu == '2' :
+				return self.tambah_petugas()
+			elif menu == '3' :
+				return self.hapus_petugas()
+			elif menu == '4' :
+				return self.app.role_admin.menu_admin()
+			else :
+				return self.menu_manajemen_petugas()
+
+		except KeyboardInterrupt :
+			return self.app.role_admin.menu_admin()
 
 	def menu_manajemen_petugas(self) :
 		try :
@@ -35,37 +57,12 @@ class Petugas :
 			elif menu == '3' :
 				return self.hapus_petugas()
 			elif menu == '4' :
-				return self.admin.menu_admin()
+				return self.app.role_admin.menu_admin()
 			else :
 				return self.menu_manajemen_petugas()
 
 		except KeyboardInterrupt :
-			return self.admin.menu_admin()
-
-	def menu_manajemen_petugas(self) :
-		try :
-			bersihkan_console()
-
-			print(f"Halaman: Admin > {colored('Manajemen Petugas', 'blue')}")
-			print('[1] Tampilkan')
-			print('[2] Tambah')
-			print('[3] Hapus')
-			print(colored('[4] Kembali', 'yellow'))
-			menu = input('Pilih:\n> ')
-
-			if menu == '1' :
-				return self.tampilkan_petugas()
-			elif menu == '2' :
-				return self.tambah_petugas()
-			elif menu == '3' :
-				return self.hapus_petugas()
-			elif menu == '4' :
-				return self.admin.menu_admin()
-			else :
-				return self.menu_manajemen_petugas()
-
-		except KeyboardInterrupt :
-			return self.admin.menu_admin()
+			return self.app.role_admin.menu_admin()
 
 	def tampilkan_tabel_petugas(self, pakai_kode=False) :
 		tabel = PrettyTable()
@@ -155,7 +152,7 @@ class Petugas :
 				'nomor_telepon': nomor_telepon,
 				'alamat': alamat
 			})
-			self.admin.tersimpan = False
+			self.app.role_admin.tersimpan = False
 
 			return self.tampilkan_petugas(pesan=colored('Berhasil menambah petugas.', 'green'))
 
@@ -179,7 +176,7 @@ class Petugas :
 					print('Loading...')
 					
 					self.data.delete(kode_petugas, 'kode')
-					self.admin.tersimpan = False
+					self.app.role_admin.tersimpan = False
 
 					return self.tampilkan_petugas(pesan=colored('Petugas berhasil dihapus.', 'green'))
 

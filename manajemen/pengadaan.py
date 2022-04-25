@@ -4,17 +4,14 @@ from data_class import LinkedListOfDict
 from helper import bersihkan_console, cek_tanggal_valid, currency
 from termcolor import colored
 
-class Pengadaan :
+class ManajemenPengadaan :
 	"""
 		PENGADAAN
 	"""
 
-	def __init__(self) :
-		self.admin = None
+	def __init__(self, app) :
+		self.app = app
 		self.data = LinkedListOfDict(softdelete=True)
-
-	def initAdmin(self, admin) :
-		self.admin = admin
 
 	def menu_manajemen_pengadaan(self) :
 		try :
@@ -34,12 +31,12 @@ class Pengadaan :
 			elif menu == '3' :
 				return self.hapus_pengadaan()
 			elif menu == '4' :
-				return self.admin.menu_admin()
+				return self.app.role_admin.menu_admin()
 			else :
 				return self.menu_manajemen_pengadaan()
 
 		except KeyboardInterrupt :
-			return self.admin.menu_admin()
+			return self.app.role_admin.menu_admin()
 
 	def tampilkan_tabel_pengadaan(self, pakai_kode=False) :
 		tabel = PrettyTable()
@@ -48,7 +45,7 @@ class Pengadaan :
 
 		pengadaan = self.data.tolist()
 		for i in range(len(pengadaan)) :
-			penerbit = self.admin.penerbit.data.search(pengadaan[i]['kode_penerbit'], 'kode')
+			penerbit = self.app.role_admin.penerbit.data.search(pengadaan[i]['kode_penerbit'], 'kode')
 			tabel.add_row((
 				pengadaan[i]['kode'] if pakai_kode else (i + 1),
 				penerbit['nama'],
@@ -70,7 +67,7 @@ class Pengadaan :
 			if kode_pengadaan :
 				pengadaan = self.data.search(kode_pengadaan, 'kode')
 				if pengadaan is not None :
-					penerbit = self.admin.penerbit.data.search(pengadaan['kode_penerbit'], 'kode')
+					penerbit = self.app.role_admin.penerbit.data.search(pengadaan['kode_penerbit'], 'kode')
 					return self.tampilkan_detail_pengadaan(penerbit, pengadaan)
 
 			return self.tampilkan_pengadaan(pesan=colored('Mohon pilih kode pengadaan yang tersedia.', 'red'))
@@ -120,11 +117,11 @@ class Pengadaan :
 
 			if pesan is not None : print(pesan)
 
-			self.admin.penerbit.tampilkan_tabel_penerbit(pakai_kode=True)
+			self.app.role_admin.penerbit.tampilkan_tabel_penerbit(pakai_kode=True)
 			kode_penerbit = input('Kode penerbit   : ')
 			tanggal 		= input('Tanggal (d-m-y) : ') or datetime.now().strftime('%d-%m-%Y')
 
-			if kode_penerbit and self.admin.penerbit.data.search(kode_penerbit, 'kode') :
+			if kode_penerbit and self.app.role_admin.penerbit.data.search(kode_penerbit, 'kode') :
 				if not cek_tanggal_valid(tanggal) :
 					return self.tambah_pengadaan(pesan=colored('Tanggal tidak valid.', 'red'))
 				
@@ -142,7 +139,7 @@ class Pengadaan :
 
 			if pesan is not None : print(pesan)
 
-			penerbit = self.admin.penerbit.data.search(kode_penerbit, 'kode')
+			penerbit = self.app.role_admin.penerbit.data.search(kode_penerbit, 'kode')
 			print('=' * 30)
 			print(f'Penerbit : {penerbit["nama"]}')
 			print(f'Tanggal  : {tanggal_pengadaan}')
@@ -181,7 +178,7 @@ class Pengadaan :
 			bersihkan_console()
 			print(f"Halaman: Admin > Pengadaan > {colored('Tambah Pengadaan', 'blue')}")
 			
-			penerbit = self.admin.penerbit.data.search(pengadaan['kode_penerbit'], 'kode')
+			penerbit = self.app.role_admin.penerbit.data.search(pengadaan['kode_penerbit'], 'kode')
 			print(f'Penerbit : {penerbit["nama"]}')
 			print(f'Tanggal  : {pengadaan["tanggal"]}')
 
@@ -210,7 +207,7 @@ class Pengadaan :
 
 			input(colored('\nTekan untuk mengkonfirmasi pengadaan...', 'yellow'))
 			self.data.insert(pengadaan)
-			self.admin.tersimpan = False
+			self.app.role_admin.tersimpan = False
 
 			return self.tampilkan_pengadaan(pesan=colored('Pengadaan berhasil ditambah.', 'green'))
 
@@ -230,6 +227,6 @@ class Pengadaan :
 			return self.hapus_pengadaan(pesan=colored('Pilih kode pengadaan yang tersedia.', 'red'))
 
 		self.data.delete(kode_pengadaan, 'kode')
-		self.admin.tersimpan = False
+		self.app.role_admin.tersimpan = False
 
 		return self.tampilkan_pengadaan(pesan=colored('Pengadaan telah dihapus.', 'green'))

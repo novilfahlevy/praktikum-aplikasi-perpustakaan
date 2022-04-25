@@ -1,23 +1,11 @@
 from helper import bersihkan_console
 from termcolor import colored
 
-from auth import Auth
-from role.user import User
-from role.manajemen.buku import Buku
-from role.manajemen.member import Member
-from role.manajemen.peminjaman import Peminjaman
+from role.user import BaseUser
 
-class Petugas(User) :
-	def __init__(self, auth: Auth, member: Member, buku: Buku, peminjaman: Peminjaman) :
-		self.auth = auth
-		self.member = member
-		self.buku = buku
-		self.peminjaman = peminjaman
-
-		self.member.initPetugas(self)
-		self.buku.initPetugas(self)
-		self.peminjaman.initPetugas(self)
-
+class RolePetugas(BaseUser) :
+	def __init__(self, app) :
+		self.app = app
 		self.tersimpan = True
 
 	def menu_petugas(self, pesan=None) :
@@ -27,7 +15,7 @@ class Petugas(User) :
 
 			if pesan is not None : print(pesan)
 
-			nama = self.auth.session['nama']
+			nama = self.app.auth.session['nama']
 			tersimpan = self.tersimpan
 			print(f'{colored("Data tersimpan" if tersimpan else "Data tidak tersimpan", "green" if tersimpan else "red")} | {nama}')
 			print('[1] Member')
@@ -39,15 +27,15 @@ class Petugas(User) :
 			menu = input('Pilih:\n> ')
 
 			if menu == '1' :
-				# return self.petugas.menu_manajemen_petugas()
+				# return self.app.petugas.menu_manajemen_petugas()
 				print('Member')
 			elif menu == '2' :
-				# return self.penerbit.menu_manajemen_penerbit()
+				# return self.app.penerbit.menu_manajemen_penerbit()
 				print('Buku')
 			elif menu == '3' :
 				print('Peminjaman')
 			elif menu == '4' :
-				# return self.pengadaan.menu_manajemen_pengadaan()
+				# return self.app.pengadaan.menu_manajemen_pengadaan()
 				print('Simpan data')
 				# if input('Simpan data (Y/n)? ').lower() == 'y' :
 				# 	if self.simpan_data() :
@@ -57,9 +45,9 @@ class Petugas(User) :
 			elif menu == '5' :
 				return self.edit_profil()
 			elif menu == '6' :
-				return self.auth.logout()
+				return self.app.auth.logout()
 			else :
 				return self.menu_petugas()
 
 		except KeyboardInterrupt :
-			return self.auth.app.main(force_close=True)	
+			return self.app.main(force_close=True)

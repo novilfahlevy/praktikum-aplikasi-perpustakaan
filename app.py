@@ -1,42 +1,30 @@
 # from database import buat_tabel
 
 from auth import Auth
-from role.admin import Admin as RoleAdmin
-from role.petugas import Petugas as RolePetugas
+from role.admin import RoleAdmin
+from role.petugas import RolePetugas
 
-from role.manajemen.petugas import Petugas
-from role.manajemen.penerbit import Penerbit
-from role.manajemen.pengadaan import Pengadaan
+from manajemen.petugas import ManajemenPetugas
+from manajemen.penerbit import ManajemenPenerbit
+from manajemen.pengadaan import ManajemenPengadaan
 
-from role.manajemen.buku import Buku
-from role.manajemen.member import Member
-from role.manajemen.peminjaman import Peminjaman
+from manajemen.buku import ManajemenBuku
+from manajemen.member import ManajemenMember
+from manajemen.peminjaman import ManajemenPeminjaman
 
 class App :
 	def __init__(self):
-		self.auth = Auth(app=self)
+		self.auth = Auth(self)
 
-		self.petugas = Petugas()
-		self.penerbit = Penerbit()
-		self.pengadaan = Pengadaan()
-		self.member = Member()
-		self.buku = Buku()
-		self.peminjaman = Peminjaman()
+		self.petugas = ManajemenPetugas(self)
+		self.penerbit = ManajemenPenerbit(self)
+		self.pengadaan = ManajemenPengadaan(self)
+		self.member = ManajemenMember(self)
+		self.buku = ManajemenBuku(self)
+		self.peminjaman = ManajemenPeminjaman(self)
 
-		self.role_admin = RoleAdmin(
-			auth=self.auth,
-			petugas=self.petugas,
-			penerbit=self.penerbit,
-			pengadaan=self.pengadaan,
-			buku=self.buku
-		)
-
-		self.role_petugas = RolePetugas(
-			auth=self.auth,
-			member=self.member,
-			buku=self.buku,
-			peminjaman=self.peminjaman
-		)
+		self.role_admin = RoleAdmin(self)
+		self.role_petugas = RolePetugas(self)
 
 		self.main()
 

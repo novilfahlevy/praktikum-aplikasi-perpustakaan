@@ -1,27 +1,13 @@
 from datetime import datetime
 from database import sql
-from helper import bersihkan_console, hash_password
+from helper import bersihkan_console
 from termcolor import colored
 
-from auth import Auth
-from role.user import User
-from role.manajemen.penerbit import Penerbit
-from role.manajemen.petugas import Petugas
-from role.manajemen.pengadaan import Pengadaan
-from role.manajemen.buku import Buku
+from role.user import BaseUser
 
-class Admin(User) :
-	def __init__(self, auth: Auth, petugas: Petugas, penerbit: Penerbit, pengadaan: Pengadaan, buku: Buku) :
-		self.auth = auth
-		self.petugas = petugas
-		self.penerbit = penerbit
-		self.pengadaan = pengadaan
-		self.buku = buku
-
-		self.petugas.initAdmin(self)
-		self.penerbit.initAdmin(self)
-		self.pengadaan.initAdmin(self)
-
+class RoleAdmin(BaseUser) :
+	def __init__(self, app) :
+		self.app = app
 		self.tersimpan = True
 
 		self.ambil_database()
@@ -33,7 +19,7 @@ class Admin(User) :
 
 			if pesan is not None : print(pesan)
 
-			nama = self.auth.session['nama']
+			nama = self.app.auth.session['nama']
 			tersimpan = self.tersimpan
 			print(f'{colored("Data tersimpan" if tersimpan else "Data tidak tersimpan", "green" if tersimpan else "red")} | {nama}')
 			print('[1] Petugas')
@@ -45,11 +31,11 @@ class Admin(User) :
 			menu = input('Pilih:\n> ')
 
 			if menu == '1' :
-				return self.petugas.menu_manajemen_petugas()
+				return self.app.petugas.menu_manajemen_petugas()
 			elif menu == '2' :
-				return self.penerbit.menu_manajemen_penerbit()
+				return self.app.penerbit.menu_manajemen_penerbit()
 			elif menu == '3' :
-				return self.pengadaan.menu_manajemen_pengadaan()
+				return self.app.pengadaan.menu_manajemen_pengadaan()
 			elif menu == '4' :
 				if input('Simpan data (Y/n)? ').lower() == 'y' :
 					if self.simpan_data() :
@@ -59,12 +45,12 @@ class Admin(User) :
 			elif menu == '5' :
 				return self.edit_profil()
 			elif menu == '6' :
-				return self.auth.logout()
+				return self.app.auth.logout()
 			else :
 				return self.menu_admin()
 
 		except KeyboardInterrupt :
-			return self.auth.app.main(force_close=True)
+			return self.app.auth.app.main(force_close=True)
 
 	def simpan_data(self) :
 		try :
@@ -77,7 +63,7 @@ class Admin(User) :
 			return False
 
 	def simpan_petugas(self) :
-		petugas = self.petugas.data
+		petugas = self.app.petugas.data
 		petugas_list = petugas.tolist(with_trashed=True)
 		for i in range(len(petugas_list)) :
 			petugas_data = petugas_list[i]
@@ -98,7 +84,7 @@ class Admin(User) :
 				sql(query=query, data=(petugas_data['kode'],))
 
 	def simpan_penerbit(self) :
-		penerbit = self.penerbit.data
+		penerbit = self.app.penerbit.data
 		penerbit_list = penerbit.tolist(with_trashed=True)
 		for i in range(len(penerbit_list)) :
 			penerbit_data = penerbit_list[i]
@@ -130,7 +116,7 @@ class Admin(User) :
 				sql(query=query, data=(penerbit_data['kode'],))
 	
 	def simpan_pengadaan(self) :
-		pengadaan = self.pengadaan.data
+		pengadaan = self.app.pengadaan.data
 		pengadaan_list = pengadaan.tolist(with_trashed=True)
 		
 		for i in range(len(pengadaan_list)) :
@@ -166,9 +152,9 @@ class Admin(User) :
 		penerbit = sql(query="SELECT * FROM penerbit", hasil=lambda cursor: cursor.fetchall())
 		pengadaan = sql(query="SELECT * FROM pengadaan", hasil=lambda cursor: cursor.fetchall())
 
-		self.ambil(self.petugas, petugas)
-		self.ambil(self.penerbit, penerbit)
-		self.ambil(self.pengadaan, pengadaan, self.ambil_detail_pengadaan)
+		self.ambil(self.app.petugas, petugas)
+		self.ambil(self.app.penerbit, penerbit)
+		self.ambil(self.app.pengadaan, pengadaan, self.ambil_detail_pengadaan)
 
 		self.tersimpan = True
 
