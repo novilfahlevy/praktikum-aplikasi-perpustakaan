@@ -186,13 +186,6 @@ class RoleAdmin(BaseUser) :
 
 		self.tersimpan = True
 
-	def ambil(self, linkedlist, list_data, nested=None) :
-		for i in range(len(list_data)) :
-			data = {}
-			for j in list_data[i] : data[j] = list_data[i][j]
-			if nested is not None : nested(data)
-			linkedlist.data.insert(data, status='lama')
-
 	def ambil_detail_pengadaan(self, data) :
 		kode_pengadaan = data['kode']
 		pengadaan = sql(query="SELECT * FROM detail_pengadaan WHERE kode_pengadaan = %s", data=(kode_pengadaan,), hasil=lambda cursor: cursor.fetchall())

@@ -94,7 +94,7 @@ def buat_tabel(seed=False, truncate=False) :
 			kode_member char(5) not null,
 			kode_buku char(5) not null,
 			tanggal_mulai date not null,
-			tanggal_selesai date not null,
+			tanggal_selesai date null,
 			tenggat date null,
 			denda int not null
 		);

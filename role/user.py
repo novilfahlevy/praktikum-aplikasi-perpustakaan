@@ -57,3 +57,10 @@ class BaseUser :
 			if self.app.auth.session['role'] == 'admin' :
 				return self.menu_admin()
 			return self.menu_petugas()
+
+	def ambil(self, linkedlist, list_data, nested=None) :
+		for i in range(len(list_data)) :
+			data = {}
+			for j in list_data[i] : data[j] = list_data[i][j]
+			if nested is not None : nested(data)
+			linkedlist.data.insert(data, status='lama')
