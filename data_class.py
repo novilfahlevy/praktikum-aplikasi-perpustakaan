@@ -1,28 +1,28 @@
 from helper import kode_generator
 
-class Node:
-  def __init__(self, data=None): 
+class LinkedListNode :
+  def __init__(self, data=None) :
     self.data = data
-    self.next = Node
+    self.next = None
 
-class LinkedListOfDict:
-  def __init__(self, softdelete=False):  
+class LinkedListOfDict :
+  def __init__(self, softdelete=False) :
     self.head = None
     self.softdelete = softdelete
   
-  def insert(self, data, status='baru'):
+  def insert(self, data, status='baru') :
     if type(data) != dict : raise('Type of data must be dictionary')
-    new_node = Node(data)
+    new_node = LinkedListNode(data)
     new_node.next = self.head
     self.head = new_node
-    if status == 'baru' : self.head.data['kode'] = kode_generator(4).lower()
+    if status == 'baru' : self.head.data['kode'] = kode_generator(4)
     if self.softdelete : self.head.data['status_data'] = status
 
   def delete(self, data, key=None) :
     if self.softdelete : self.soft_delete(data, key)
     else               : self.hard_delete(data, key)
 
-  def hard_delete(self, data, key=None):
+  def hard_delete(self, data, key=None) :
     current_node = self.head
     previous_node = None
 
@@ -93,7 +93,13 @@ class LinkedListOfDict:
       return hitung
     return 0
 
-  def tolist(self, with_trashed=False) :
+  def tetapkan_sebagai_tersimpan(self) :
+    current_node = self.head
+    while current_node is not None :
+      if self.softdelete : current_node.data['status_data'] = 'lama'
+      current_node = current_node.next
+
+  def tolist(self, sort=None, with_trashed=False) :
     result = []
     node = self.head
     while node is not None :
@@ -103,7 +109,8 @@ class LinkedListOfDict:
       else :
         result.append(node.data)
         node = node.next
-    return result
+    
+    return result if sort is None else merge_sort(result, sort)
   
   def printlist(self, with_trashed=False):
     current = self.head
@@ -116,3 +123,145 @@ class LinkedListOfDict:
         print('{} {}{}-> '.format(current.data, '\n', '\t' * hitung_tab), end='')
         hitung_tab = hitung_tab + 1
         current = current.next
+
+class QueueNode :
+	def __init__(self, data): 
+		self.data = data
+		self.next = None
+		self.prev = None
+ 
+class Queue :
+	def __init__(self, softdelete=False) :
+		self.head = None
+		self.last = None
+		self.softdelete = softdelete
+
+	def enqueue(self, data) :
+		new_node = QueueNode(data)
+		if self.last is None :
+			self.head = new_node
+			self.last = self.head
+		else :
+			self.last.next = new_node
+			self.last.next.prev = self.last
+			self.last = self.last.next
+
+	def dequeue(self) :
+		if self.head is None :
+			return None
+		else :
+			temp = self.head.data
+			self.head = self.head.next
+			self.head.prev = None
+			return temp
+
+	def first(self) :    
+		return self.head.data 
+
+	def size(self) :
+		temp = self.head 
+		count = 0
+		while temp is not None :
+			count = count + 1
+			temp = temp.next
+		return count
+
+	def isEmpty(self) :
+		if self.head is None :
+			return True
+		else :
+			return False
+
+	def printqueue(self) :
+		print("queue elements are:") 
+		temp = self.head 
+		while temp is not None :
+			print(temp.data, end="->")
+			temp = temp.next
+ 
+# queue = Queue()
+ 
+# Insert 4 at the end. So queue becomes 4->None 
+# queue.enqueue(4)
+ 
+# # Insert 5 at the end. So queue becomes 4->5None 
+# queue.enqueue(5)
+ 
+# # Insert 6 at the end. So queue becomes 4->5->6->None 
+# queue.enqueue(6)
+ 
+# # Insert 7 at the end. So queue becomes 4->5->6->7->None 
+# queue.enqueue(7)
+
+# # Print the queue 
+# queue.printqueue()
+ 
+# # Print the first element 
+# print("\nfirst element is ",queue.first()) 
+ 
+# # Print the queue size 
+# print("Size of the queue is ",queue.size()) 
+ 
+# remove the first element 
+# queue.dequeue() 
+ 
+# remove the first element 
+# queue.dequeue() 
+ 
+# first two elements are removed 
+# Print the queue 
+# print("After applying dequeue() two times") 
+# queue.printqueue() 
+ 
+# Print True if queue is empty else False 
+# print("\nqueue is empty:",queue.isEmpty()
+
+def merge_sort(lst, compare):
+  if len(lst) <= 1 :
+    return lst
+
+  mid = len(lst) // 2
+
+  left = merge_sort(lst[0:mid], compare)
+  right = merge_sort(lst[mid:len(lst)], compare)
+  
+  return merge(left, right, compare)
+
+
+def merge(left, right, compare) :
+  result = []
+  i, j = 0, 0
+
+  while i < len(left) and j < len(right) :
+    if compare(left[i], right[j]) :
+      result.append(left[i])
+      i += 1
+    else :
+      result.append(right[j])
+      j += 1
+
+  result += left[i:]
+  result += right[j:]
+
+  return result
+
+def binary_search(lys, val, key) :
+  """
+    Pencarian untuk list of dict.
+  """
+  first = 0
+  last = len(lys) - 1
+  row = -1
+
+  while (first <= last) and (row == -1) :
+    mid = (first + last) // 2
+
+    if lys[mid][key] == val :
+      row = mid
+    else :
+      if val < lys[mid][key] :
+        last = mid - 1
+      else:
+        first = mid + 1
+  
+  return row

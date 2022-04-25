@@ -80,7 +80,7 @@ def buat_tabel(seed=False, truncate=False) :
 		CREATE TABLE IF NOT EXISTS `buku` (
 			kode char(5) primary key not null,
 			isbn varchar(15) not null,
-			judul text not null,
+			judul text null,
 			penulis text null,
 			genre text null,
 			jumlah_halaman int null,
@@ -112,9 +112,9 @@ def buat_tabel(seed=False, truncate=False) :
 			(%s, %s, %s, %s, %s, %s, %s, 0, now()),
 			(%s, %s, %s, %s, %s, %s, %s, 0, now());""",
 			(
-				kode_generator(4).lower(), 'Admin', 'admin@gmail.com', hash_password('12345'), '089609233200', 'Jl. Langsat No. 64', 'admin',
-				kode_generator(4).lower(), 'Petugas', 'petugas@gmail.com', hash_password('12345'), '089609233200', 'Jl. Langsat No. 64', 'petugas',
-				kode_generator(4).lower(), 'Member', 'member@gmail.com', '', '089609233200', 'Jl. Langsat No. 64', 'member',
+				kode_generator(4), 'Admin', 'admin@gmail.com', hash_password('12345'), '089609233200', 'Jl. Langsat No. 64', 'admin',
+				kode_generator(4), 'Petugas', 'petugas@gmail.com', hash_password('12345'), '089609233200', 'Jl. Langsat No. 64', 'petugas',
+				kode_generator(4), 'Member', 'member@gmail.com', '', '089609233200', 'Jl. Langsat No. 64', 'member',
 			)
 		)
 

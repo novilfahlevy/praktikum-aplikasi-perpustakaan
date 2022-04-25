@@ -1,5 +1,3 @@
-# from database import buat_tabel
-
 from auth import Auth
 from role.admin import RoleAdmin
 from role.petugas import RolePetugas
@@ -33,7 +31,6 @@ class App :
 		self.main()
 
 	def main(self, force_close=False) :
-		# buat_tabel(truncate=True, seed=True)
 		if force_close is not True :
 			session = self.auth.ambil_session(ke_json=True)
 			if session is not None :

@@ -1,4 +1,5 @@
 from datetime import datetime
+import sys
 from database import sql
 from helper import bersihkan_console
 from termcolor import colored
@@ -12,7 +13,7 @@ class RoleAdmin(BaseUser) :
 
 	def __init__(self, app) :
 		self.app = app
-		self.tersimpan = True
+		self.tersimpan = False
 
 		self.ambil_database()
 
@@ -21,11 +22,10 @@ class RoleAdmin(BaseUser) :
 			bersihkan_console()
 			print(f"Halaman: {colored('Admin', 'blue')}")
 
-			if pesan is not None : print(pesan)
-
 			nama = self.app.auth.session['nama']
 			tersimpan = self.tersimpan
 			print(f'{colored("Data tersimpan" if tersimpan else "Data tidak tersimpan", "green" if tersimpan else "red")} | {nama}')
+			if pesan is not None : print(pesan)
 			print('[1] Petugas')
 			print('[2] Penerbit')
 			print('[3] Pengadaan')
@@ -41,11 +41,7 @@ class RoleAdmin(BaseUser) :
 			elif menu == '3' :
 				return self.app.pengadaan.menu_manajemen_pengadaan()
 			elif menu == '4' :
-				if input('Simpan data (Y/n)? ').lower() == 'y' :
-					if self.simpan_data() :
-						return self.menu_admin(pesan=colored('Data berhasil disimpan.', 'green'))
-					return self.menu_admin(pesan=colored('Gagal menyimpan data.', 'red'))
-				return self.menu_admin()
+				return self.simpan_data()
 			elif menu == '5' :
 				return self.edit_profil()
 			elif menu == '6' :
@@ -58,13 +54,18 @@ class RoleAdmin(BaseUser) :
 
 	def simpan_data(self) :
 		try :
-			self.simpan_petugas()
-			self.simpan_penerbit()
-			self.simpan_pengadaan()
-			self.tersimpan = True
-			return True
-		except :
-			return False
+			if input('Simpan data (Y/n)? ').lower() == 'y' :
+				if self.tersimpan == False :
+					self.simpan_petugas()
+					self.simpan_penerbit()
+					self.simpan_pengadaan()
+					self.tersimpan = True
+					return self.menu_admin(pesan=colored('Data berhasil disimpan.', 'green'))
+				return self.menu_admin(pesan=colored('Semua data sudah tersimpan.', 'yellow'))
+			return self.menu_admin()
+			
+		except Exception as e :
+			sys.exit(e)
 
 	def simpan_petugas(self) :
 		petugas = self.app.petugas.data
@@ -72,7 +73,7 @@ class RoleAdmin(BaseUser) :
 		for i in range(len(petugas_list)) :
 			petugas_data = petugas_list[i]
 			if petugas_data['status_data'] == 'baru' :
-				query = 'INSERT INTO pengguna VALUES (%s, %s, %s, %s, %s, %s, %s, now());'
+				query = 'INSERT INTO pengguna VALUES (%s, %s, %s, %s, %s, %s, %s, %s);'
 				data = (
 					petugas_data['kode'],
 					petugas_data['nama'],
@@ -80,12 +81,15 @@ class RoleAdmin(BaseUser) :
 					petugas_data['password'],
 					petugas_data['nomor_telepon'],
 					petugas_data['alamat'],
-					'petugas'
+					'petugas',
+					petugas_data['tanggal_dibuat'],
 				)
 				sql(query=query, data=data)
 			elif petugas_data['status_data'] == 'hapus' :
 				query = 'DELETE FROM pengguna WHERE kode = %s;'
 				sql(query=query, data=(petugas_data['kode'],))
+
+		self.app.petugas.data.tetapkan_sebagai_tersimpan()
 
 	def simpan_penerbit(self) :
 		penerbit = self.app.penerbit.data
@@ -118,6 +122,8 @@ class RoleAdmin(BaseUser) :
 			elif penerbit_data['status_data'] == 'hapus' :
 				query = 'DELETE FROM penerbit WHERE kode = %s;'
 				sql(query=query, data=(penerbit_data['kode'],))
+
+		self.app.penerbit.data.tetapkan_sebagai_tersimpan()
 	
 	def simpan_pengadaan(self) :
 		pengadaan = self.app.pengadaan.data
@@ -145,11 +151,29 @@ class RoleAdmin(BaseUser) :
 						detail_pengadaan_data['harga'],
 						detail_pengadaan_data['jumlah'],
 					)
+
+					buku = self.app.buku.data.search(detail_pengadaan_data['isbn'], 'isbn')
+
+					# cek apakah buku sudah ada
+					buku_lama = sql(query='SELECT jumlah FROM buku WHERE isbn = %s;', data=(buku['isbn'],), hasil=lambda cursor: cursor.fetchone())
+					if buku_lama is not None :
+						sql(
+							query='UPDATE buku SET jumlah = %s WHERE isbn = %s;',
+							data=(int(buku['jumlah']), buku['isbn'])
+						)
+					else :
+						sql(
+							query='INSERT INTO buku VALUES (%s, %s, %s, %s, %s, %s, %s);',
+							data=(buku['kode'], buku['isbn'], '', '', '', 0, buku['jumlah'])
+						)
+
 					sql(query=query, data=data)
 			
 			elif pengadaan_data['status_data'] == 'hapus' :
 				query = 'DELETE FROM pengadaan WHERE kode = %s;'
 				sql(query=query, data=(pengadaan_data['kode'],))
+
+		self.app.pengadaan.data.tetapkan_sebagai_tersimpan()
 
 	def ambil_database(self) :
 		petugas = sql(query="SELECT * FROM pengguna WHERE role = 'petugas'", hasil=lambda cursor: cursor.fetchall())

@@ -21,5 +21,10 @@ def cek_tanggal_valid(tanggal, format='%d-%m-%Y') :
   except ValueError or EOFError :
     return False
 
+def konversi_format(tanggal, dari_format, ke_format) :
+  if cek_tanggal_valid(str(tanggal), dari_format) :
+    return datetime.strptime(str(tanggal), dari_format).strftime(ke_format)
+  return str(tanggal)
+
 def kode_generator(size=6, chars=string.ascii_uppercase + string.digits):
-  return ''.join(random.choice(chars) for _ in range(size))
+  return (''.join(random.choice(chars) for _ in range(size))).lower()
