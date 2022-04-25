@@ -31,7 +31,7 @@ class RolePetugas(BaseUser) :
 			menu = input('Pilih:\n> ')
 
 			if menu == '1' :
-				# return self.app.petugas.menu_manajemen_petugas()
+				return self.app.member.menu_manajemen_member()
 				print('Member')
 			elif menu == '2' :
 				# return self.app.penerbit.menu_manajemen_penerbit()

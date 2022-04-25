@@ -4,7 +4,6 @@ from data_class import LinkedListOfDict
 from helper import bersihkan_console, hash_password
 from termcolor import colored
 
-
 class ManajemenPetugas :
 	"""
 		Manajemen petugas.
@@ -13,31 +12,6 @@ class ManajemenPetugas :
 	def __init__(self, app) :
 		self.app = app
 		self.data = LinkedListOfDict(softdelete=True)
-
-	def menu_manajemen_petugas(self) :
-		try :
-			bersihkan_console()
-
-			print(f"Halaman: Admin > {colored('Manajemen Petugas', 'blue')}")
-			print('[1] Tampilkan')
-			print('[2] Tambah')
-			print('[3] Hapus')
-			print(colored('[4] Kembali', 'yellow'))
-			menu = input('Pilih:\n> ')
-
-			if menu == '1' :
-				return self.tampilkan_petugas()
-			elif menu == '2' :
-				return self.tambah_petugas()
-			elif menu == '3' :
-				return self.hapus_petugas()
-			elif menu == '4' :
-				return self.app.role_admin.menu_admin()
-			else :
-				return self.menu_manajemen_petugas()
-
-		except KeyboardInterrupt :
-			return self.app.role_admin.menu_admin()
 
 	def menu_manajemen_petugas(self) :
 		try :
@@ -150,7 +124,8 @@ class ManajemenPetugas :
 				'email': email,
 				'password': hash_password(password),
 				'nomor_telepon': nomor_telepon,
-				'alamat': alamat
+				'alamat': alamat,
+				'role': role
 			})
 			self.app.role_admin.tersimpan = False
 

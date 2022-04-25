@@ -21,15 +21,15 @@ def koneksi() :
 
 		if error : print(colored(f'Error:\n{error}.', 'red'))
 
-		message = f"""
-			\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\bSebelum menjalankan aplikasi ini, nyalakan dulu mysql di XAMPP, lalu install {colored('mysql-connector', 'yellow')} menggunakan pip.
-			\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b- - - - - - - - - - - - - - - -
-			\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\bpip install mysql-connector
-			\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b- - - - - - - - - - - - - - - -
+		message = """
+			{backspace}Sebelum menjalankan aplikasi ini, nyalakan dulu mysql di XAMPP, lalu install {mysql_connector} menggunakan pip.
+			{backspace}- - - - - - - - - - - - - - - -
+			{backspace}pip install mysql-connector
+			{backspace}- - - - - - - - - - - - - - - -
 
-			\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\bBuat database dengan nama {colored(database, 'green')}."""
+			{backspace}Buat database dengan nama {database}."""
 
-		print(message)
+		print(message.format(backspace=('\b' * 24), mysql_connector=colored('mysql-connector', 'yellow'), database=colored(database, 'green')))
 
 def buat_tabel(seed=False, truncate=False) :
 	# buat tabel
