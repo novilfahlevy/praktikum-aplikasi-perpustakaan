@@ -7,7 +7,7 @@ from termcolor import colored
 
 class ManajemenPetugas :
 	"""
-		MANAJEMEN PETUGAS
+		Manajemen petugas.
 	"""
   
 	def __init__(self, app) :

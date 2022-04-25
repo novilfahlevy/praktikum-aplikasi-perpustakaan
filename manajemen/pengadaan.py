@@ -6,7 +6,7 @@ from termcolor import colored
 
 class ManajemenPengadaan :
 	"""
-		PENGADAAN
+		Manajemen pengadaan.
 	"""
 
 	def __init__(self, app) :

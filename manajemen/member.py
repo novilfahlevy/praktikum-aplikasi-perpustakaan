@@ -1,3 +1,7 @@
 class ManajemenMember :
-  def __init__(self,app) :
+  """
+    Manajemen member.
+  """
+
+  def __init__(self, app) :
     self.app = app

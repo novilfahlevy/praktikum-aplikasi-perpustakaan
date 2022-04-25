@@ -4,6 +4,10 @@ from termcolor import colored
 from role.user import BaseUser
 
 class RolePetugas(BaseUser) :
+	"""
+		Role petugas.
+	"""
+
 	def __init__(self, app) :
 		self.app = app
 		self.tersimpan = True

@@ -6,7 +6,7 @@ from termcolor import colored
 
 class ManajemenPenerbit :
 	"""
-		MANAJEMEN PENERBIT
+		Manajemen penerbit.
 	"""
 
 	def __init__(self, app) :

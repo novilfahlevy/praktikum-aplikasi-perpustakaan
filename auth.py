@@ -8,6 +8,10 @@ from helper import bersihkan_console
 from database import sql
 
 class Auth :
+	"""
+		Class auth untuk keperluan otentikasi.
+	"""
+
 	def __init__(self, app) :
 		self.app = app
 		self.session = None

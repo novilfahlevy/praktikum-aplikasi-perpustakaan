@@ -6,6 +6,10 @@ from termcolor import colored
 from role.user import BaseUser
 
 class RoleAdmin(BaseUser) :
+	"""
+		Role admin.
+	"""
+
 	def __init__(self, app) :
 		self.app = app
 		self.tersimpan = True
@@ -50,7 +54,7 @@ class RoleAdmin(BaseUser) :
 				return self.menu_admin()
 
 		except KeyboardInterrupt :
-			return self.app.auth.app.main(force_close=True)
+			return self.app.main(force_close=True)
 
 	def simpan_data(self) :
 		try :

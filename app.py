@@ -13,6 +13,10 @@ from manajemen.member import ManajemenMember
 from manajemen.peminjaman import ManajemenPeminjaman
 
 class App :
+	"""
+		Class utama yang dijalankan.
+	"""
+
 	def __init__(self):
 		self.auth = Auth(self)
 
