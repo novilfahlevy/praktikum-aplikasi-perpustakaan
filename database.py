@@ -95,7 +95,7 @@ def buat_tabel(seed=False, truncate=False) :
 			kode_buku char(5) not null,
 			tanggal_mulai date not null,
 			tanggal_selesai date not null,
-			tanggal_kembalikan date null,
+			tenggat date null,
 			denda int not null
 		);
 	""")

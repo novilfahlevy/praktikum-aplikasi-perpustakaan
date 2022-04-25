@@ -17,7 +17,7 @@ class ManajemenMember :
 		try :
 			bersihkan_console()
 
-			print(f"Halaman: Admin > {colored('Manajemen Member', 'blue')}")
+			print(f"Halaman: Petugas > {colored('Manajemen Member', 'blue')}")
 			print('[1] Tampilkan')
 			print('[2] Tambah')
 			print('[3] Edit')
@@ -34,12 +34,12 @@ class ManajemenMember :
 			elif menu == '4' :
 				return self.hapus_member()
 			elif menu == '5' :
-				return self.app.role_admin.menu_admin()
+				return self.app.role_petugas.menu_petugas()
 			else :
 				return self.menu_manajemen_member()
 
 		except KeyboardInterrupt :
-			return self.app.role_admin.menu_admin()
+			return self.app.role_petugas.menu_petugas()
 
 	def tampilkan_tabel_member(self, pakai_kode=False) :
 		tabel = PrettyTable()
@@ -61,7 +61,7 @@ class ManajemenMember :
 	def tampilkan_member(self, pesan=None) :
 		try :
 			bersihkan_console()
-			print(f"Halaman: Admin > Manajemen Member > {colored('Tampilkan Member', 'blue')}")
+			print(f"Halaman: Petugas > Manajemen Member > {colored('Tampilkan Member', 'blue')}")
 
 			if pesan : print(pesan)
 
@@ -76,7 +76,7 @@ class ManajemenMember :
 	def tambah_member(self, pesan=None) :
 		try :
 			bersihkan_console()
-			print(f"Halaman: Admin > Manajemen Member > {colored('Tambah Member', 'blue')}")
+			print(f"Halaman: Petugas > Manajemen Member > {colored('Tambah Member', 'blue')}")
 
 			if pesan : print(pesan) # pesan tambahan, opsional
 			
@@ -99,7 +99,7 @@ class ManajemenMember :
 			if not alamat : return self.tambah_member(colored('Alamat tidak boleh kosong.', 'red'))
 
 			bersihkan_console()
-			print(f"Halaman: Admin > Manajemen Member > {colored('Tambah Member', 'blue')}")
+			print(f"Halaman: Petugas > Manajemen Member > {colored('Tambah Member', 'blue')}")
 
 			# review dan konfirmasi kembali data member
 			tabel_review = PrettyTable()
@@ -126,7 +126,7 @@ class ManajemenMember :
 				'alamat': alamat,
 				'role': role
 			})
-			self.app.role_admin.tersimpan = False
+			self.app.role_petugas.tersimpan = False
 
 			return self.tampilkan_member(pesan=colored('Berhasil menambah member.', 'green'))
 
@@ -136,7 +136,7 @@ class ManajemenMember :
 	def edit_member(self, pesan=None) :
 		try :
 			bersihkan_console()
-			print(f"Halaman: Admin > Manajemen Member > {colored('Edit Member', 'blue')}")
+			print(f"Halaman: Petugas > Manajemen Member > {colored('Edit Member', 'blue')}")
 
 			if pesan : print(pesan) # pesan tambahan, opsional
 
@@ -168,7 +168,7 @@ class ManajemenMember :
 					if not alamat : return self.edit_member(colored('Alamat tidak boleh kosong.', 'red'))
 
 					bersihkan_console()
-					print(f"Halaman: Admin > Manajemen Member > {colored('Tambah Member', 'blue')}")
+					print(f"Halaman: Petugas > Manajemen Member > {colored('Tambah Member', 'blue')}")
 
 					# review dan konfirmasi kembali data member
 					tabel_review = PrettyTable()
@@ -193,7 +193,7 @@ class ManajemenMember :
 						'alamat': alamat,
 						'role': role
 					}, kode_member, 'kode')
-					self.app.role_admin.tersimpan = False
+					self.app.role_petugas.tersimpan = False
 
 					return self.tampilkan_member(pesan=colored('Berhasil mengedit member.', 'green'))
 
@@ -205,7 +205,7 @@ class ManajemenMember :
 	def hapus_member(self, pesan=None) :
 		try :
 			bersihkan_console()
-			print(f"Halaman: Admin > Manajemen Member > {colored('Hapus Member', 'blue')}")
+			print(f"Halaman: Petugas > Manajemen Member > {colored('Hapus Member', 'blue')}")
 
 			if pesan : print(pesan) # pesan tambahan, opsional
 
@@ -219,7 +219,7 @@ class ManajemenMember :
 					print('Loading...')
 					
 					self.data.delete(kode_member, 'kode')
-					self.app.role_admin.tersimpan = False
+					self.app.role_petugas.tersimpan = False
 
 					return self.tampilkan_member(pesan=colored('Member berhasil dihapus.', 'green'))
 

@@ -35,7 +35,7 @@ class RolePetugas(BaseUser) :
 			elif menu == '2' :
 				return self.app.buku.menu_manajemen_buku()
 			elif menu == '3' :
-				print('Peminjaman')
+				return self.app.peminjaman.menu_manajemen_peminjaman()
 			elif menu == '4' :
 				# return self.app.pengadaan.menu_manajemen_pengadaan()
 				print('Simpan data')
