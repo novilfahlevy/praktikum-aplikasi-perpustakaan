@@ -41,19 +41,23 @@ class ManajemenPeminjaman :
 		except KeyboardInterrupt :
 			return self.app.role_petugas.menu_petugas()
 
-	def tampilkan_tabel_peminjaman(self, pakai_kode=False) :
+	def tampilkan_tabel_peminjaman(self, pakai_kode=False, belum_dikembalikan=False) :
 		tabel = PrettyTable()
 		tabel.title = 'Daftar Peminjaman'
 		tabel.field_names = ('Kode' if pakai_kode else 'No', 'Petugas', 'Member', 'ISBN', 'Dari', 'Sampai', 'Tenggat', 'Hitungan Denda')
 
 		peminjaman = self.data.tolist(sort=self.urutkan_peminjaman)
+
+		if belum_dikembalikan == True :
+			peminjaman = list(filter(lambda p: p['tanggal_selesai'] == '', peminjaman))
+
 		for i in range(len(peminjaman)) :
 			petugas = self.app.petugas.data.search(peminjaman[i]['kode_petugas'], 'kode')
 			member  = self.app.member.data.search(peminjaman[i]['kode_member'], 'kode')
 			buku    = self.app.buku.data.search(peminjaman[i]['kode_buku'], 'kode')
 
 			if peminjaman[i]['tanggal_selesai'] :
-				jumlah_telat = datetime.strptime(peminjaman[i]['tanggal_selesai'], '%Y-%m-%d') - datetime.strptime(peminjaman[i]['tenggat'], '%Y-%m-%d')
+				jumlah_telat = (datetime.strptime(str(peminjaman[i]['tanggal_selesai']), '%Y-%m-%d') - datetime.strptime(str(peminjaman[i]['tenggat']), '%Y-%m-%d')).days
 
 			tabel.add_row((
 				peminjaman[i]['kode'] if pakai_kode else (i + 1),
@@ -63,7 +67,7 @@ class ManajemenPeminjaman :
 				konversi_format(peminjaman[i]['tanggal_mulai'], '%Y-%m-%d', '%d-%m-%Y'),
 				konversi_format(peminjaman[i]['tanggal_selesai'], '%Y-%m-%d', '%d-%m-%Y') if peminjaman[i]['tanggal_selesai'] else '-',
 				konversi_format(peminjaman[i]['tenggat'], '%Y-%m-%d', '%d-%m-%Y'),
-				jumlah_telat * peminjaman[i]['denda'] if peminjaman[i]['tanggal_selesai'] else '-',
+				jumlah_telat * peminjaman[i]['denda'] if peminjaman[i]['tanggal_selesai'] and jumlah_telat > 0 else '-',
 			))
 
 		print(tabel)
@@ -189,7 +193,7 @@ class ManajemenPeminjaman :
 
 			if pesan is not None : print(pesan)
 
-			self.tampilkan_tabel_peminjaman(pakai_kode=True)
+			self.tampilkan_tabel_peminjaman(pakai_kode=True, belum_dikembalikan=True)
 			kode_peminjaman = input('Pilih kode peminjaman:\n> ')
 			peminjaman = self.data.search(kode_peminjaman, 'kode')
 
