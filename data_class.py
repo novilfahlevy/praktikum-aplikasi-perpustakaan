@@ -1,4 +1,6 @@
-from helper import kode_generator
+from random import randint
+from time import sleep
+from helper import bersihkan_console, kode_generator
 
 class LinkedListNode :
   def __init__(self, data=None) :
@@ -111,8 +113,21 @@ class LinkedListOfDict :
         node = node.next
     
     return result if sort is None else merge_sort(result, sort)
+
+  def toqueue(self, with_trashed=False) :
+    result = Queue()
+    node = self.head
+    while node is not None :
+      if self.softdelete and (node.data['status_data'] == 'hapus') and not with_trashed :
+        node = node.next
+        continue
+      else :
+        result.enqueue(node.data)
+        node = node.next
+    
+    return result
   
-  def printlist(self, with_trashed=False):
+  def printlist(self, with_trashed=False) :
     current = self.head
     hitung_tab = 1
     while current :
@@ -150,10 +165,61 @@ class Queue :
 		if self.head is None :
 			return None
 		else :
-			temp = self.head.data
-			self.head = self.head.next
+			temp = self.head
+			if self.head.next is not None :
+				self.head = self.head.next
+				self.head.prev = temp
+			else :
+				self.head = None
+				self.last = None
+			return temp.data
+
+	def requeue(self, count = 1) :
+		results = []
+		for _ in range(count) :
+			result = self.dequeue()
+			if result is not None :
+				self.enqueue(result)
+				results.append(result)
+			else : break
+
+		return results
+
+	def enqueue_reverse(self, data) :
+		new_node = QueueNode(data)
+		if self.last is None :
+			self.head = new_node
+			self.last = self.head
+		else :
+			temp = self.head
+			self.head = new_node
+			temp.prev = self.head
+			self.head.next = temp
 			self.head.prev = None
+
+	def dequeue_reverse(self) :
+		if self.last is None :
+			return None
+		else :
+			temp = self.last.data
+			if self.last.prev is not None :
+				self.last = self.last.prev
+				self.last.next = None
+			else :
+				self.last = None
 			return temp
+
+	def requeue_reverse(self, count = 1) :
+		results = []
+		for _ in range(count) :
+			result = self.dequeue_reverse()
+			if result is not None :
+				self.enqueue_reverse(result)
+				results.append(result)
+			else :
+				break
+
+		return results
 
 	def first(self) :    
 		return self.head.data 
@@ -171,50 +237,45 @@ class Queue :
 			return True
 		else :
 			return False
-
+  
 	def printqueue(self) :
 		print("queue elements are:") 
 		temp = self.head 
 		while temp is not None :
 			print(temp.data, end="->")
 			temp = temp.next
- 
-# queue = Queue()
- 
-# Insert 4 at the end. So queue becomes 4->None 
-# queue.enqueue(4)
- 
-# # Insert 5 at the end. So queue becomes 4->5None 
-# queue.enqueue(5)
- 
-# # Insert 6 at the end. So queue becomes 4->5->6->None 
-# queue.enqueue(6)
- 
-# # Insert 7 at the end. So queue becomes 4->5->6->7->None 
-# queue.enqueue(7)
+	
+	def tolist(self, count=None) :
+		results = []
+		node = self.head
+		if count is None :
+			while node is not None :
+				results.append(node.data)
+				node = node.next
+		else :
+			hitung = 0
+			while node is not None :
+				hitung = hitung + 1
+				results.append(node.data)
+				node = node.next
 
-# # Print the queue 
-# queue.printqueue()
- 
-# # Print the first element 
-# print("\nfirst element is ",queue.first()) 
- 
-# # Print the queue size 
-# print("Size of the queue is ",queue.size()) 
- 
-# remove the first element 
-# queue.dequeue() 
- 
-# remove the first element 
-# queue.dequeue() 
- 
-# first two elements are removed 
-# Print the queue 
-# print("After applying dequeue() two times") 
-# queue.printqueue() 
- 
-# Print True if queue is empty else False 
-# print("\nqueue is empty:",queue.isEmpty()
+				if hitung >= count : break
+
+		return results
+
+# a = Queue()
+
+# a.enqueue(1)
+# a.enqueue(2)
+
+# aksi = ''
+# while aksi != 'exit' :
+# 	bersihkan_console()
+# 	print(a.tolist())
+
+# 	aksi = input('\nAksi : ')
+# 	if aksi == 'l' : a.requeue(2)
+# 	if aksi == 'r' : a.requeue_reverse(2)
 
 def merge_sort(lst, compare):
   if len(lst) <= 1 :
