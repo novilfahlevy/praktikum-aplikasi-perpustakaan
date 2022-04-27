@@ -40,7 +40,7 @@ class BaseUser :
 					return self.edit_profil(pesan=colored('Password tidak cocok.', 'red'))
 
 			if ganti_profil_berhasil :
-				self.auth.buat_session(json.dumps({
+				self.app.auth.buat_session(json.dumps({
 					'kode': profil['kode'],
 					'nama': nama,
 					'email': email,
