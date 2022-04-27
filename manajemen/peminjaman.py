@@ -46,10 +46,10 @@ class ManajemenPeminjaman :
 		tabel.title = 'Daftar Peminjaman'
 		tabel.field_names = ('Kode' if pakai_kode else 'No', 'Petugas', 'Member', 'ISBN', 'Dari', 'Sampai', 'Tenggat', 'Hitungan Denda')
 
-		peminjaman = self.data.tolist(sort=self.urutkan_peminjaman)
+		peminjaman = self.data.tolist(sort=lambda l, r: self.urutkan_peminjaman(l, r))
 
 		if belum_dikembalikan == True :
-			peminjaman = list(filter(lambda p: p['tanggal_selesai'] == '', peminjaman))
+			peminjaman = list(filter(lambda p: not bool(p['tanggal_selesai']), peminjaman))
 
 		for i in range(len(peminjaman)) :
 			petugas = self.app.petugas.data.search(peminjaman[i]['kode_petugas'], 'kode')
@@ -72,13 +72,17 @@ class ManajemenPeminjaman :
 
 		print(tabel)
 
-	def urutkan_peminjaman(l, r) :
+	def urutkan_peminjaman(self, l, r) :
 		format_tanggal = '%Y-%m-%d'
 		hari_ini = datetime.now().strftime(format_tanggal)
-		tenggat_hari1 = datetime.strptime(l['tanggal_selesai'] if l['tanggal_selesai'] else hari_ini, format_tanggal) - datetime.strptime(l['tenggat'], format_tanggal)
-		tenggat_hari2 = datetime.strptime(r['tanggal_selesai'] if r['tanggal_selesai'] else hari_ini, format_tanggal) - datetime.strptime(r['tenggat'], format_tanggal)
 
-		return tenggat_hari1 < tenggat_hari2
+		tenggat_hari1 = str(l['tanggal_selesai']) if l['tanggal_selesai'] else hari_ini
+		tenggat_hari1 = datetime.strptime(str(l['tenggat']), format_tanggal) - datetime.strptime(tenggat_hari1, format_tanggal)
+
+		tenggat_hari2 = str(r['tanggal_selesai'] if r['tanggal_selesai'] else hari_ini)
+		tenggat_hari2 = datetime.strptime(str(r['tenggat']), format_tanggal) - datetime.strptime(tenggat_hari2, format_tanggal)
+
+		return tenggat_hari1.days < tenggat_hari2.days
 
 	def tampilkan_peminjaman(self, pesan=None) :
 		try :
@@ -111,10 +115,14 @@ class ManajemenPeminjaman :
 			durasi_hari   = input('Durasi hari              : ') or 1
 			denda         = input('Nominal denda (Rp10,000) : ') or 10000
 
-			if not kode_member or self.app.member.data.search(kode_member, 'kode') is None :
+			member = self.app.member.data.search(kode_member, 'kode')
+			buku = self.app.buku.data.search(kode_buku, 'kode')
+			if not kode_member or member is None :
 				return self.tambah_peminjaman(pesan=colored('Mohon pilih member yang tersedia.', 'red'))
-			if not kode_buku or self.app.buku.data.search(kode_buku, 'kode') is None :
+			if not kode_buku or buku is None :
 				return self.tambah_peminjaman(pesan=colored('Mohon pilih buku yang tersedia.', 'red'))
+			if buku['jumlah'] <= 0 :
+				return self.tambah_peminjaman(pesan=colored('Buku tidak tersedia.', 'red'))
 			if not cek_tanggal_valid(tanggal_mulai) :
 				return self.tambah_peminjaman(pesan=colored('Tanggal mulai tidak valid.', 'red'))
 			if not durasi_hari or not str(durasi_hari).isnumeric() :
@@ -123,7 +131,7 @@ class ManajemenPeminjaman :
 				return self.tambah_peminjaman(pesan=colored('Nominal denda tidak valid.', 'red'))
 
 			tenggat = datetime.strptime(tanggal_mulai, "%d-%m-%Y")
-			tenggat = tenggat + timedelta(days=int(durasi_hari))
+			tenggat = konversi_format(tenggat + timedelta(days=int(durasi_hari)), '%Y-%m-%d %H:%M:%S', '%Y-%m-%d')
 
 			self.data.insert({
 				'kode_member': kode_member,
