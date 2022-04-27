@@ -1,7 +1,7 @@
 from bcrypt import re
 from prettytable import PrettyTable
 from data_class import LinkedListOfDict
-from helper import bersihkan_console, hash_password
+from helper import bersihkan_console, hash_password, tampilkan_tabel_berhalaman
 from termcolor import colored
 
 class ManajemenPetugas :
@@ -35,39 +35,57 @@ class ManajemenPetugas :
 			else :
 				return self.menu_manajemen_petugas()
 
-		except KeyboardInterrupt :
+		except KeyboardInterrupt or EOFError :
 			return self.app.role_admin.menu_admin()
 
-	def tampilkan_tabel_petugas(self, pakai_kode=False) :
+	def tampilkan_tabel_petugas(self, berhalaman=False, title=None) :
 		tabel = PrettyTable()
 		tabel.title = 'Data Petugas'
-		tabel.field_names = ('Kode' if pakai_kode else 'No.', 'Nama', 'Email', 'Nomor Telepon', 'Alamat')
-		
-		petugas = self.data.tolist()
-		for i in range(len(petugas)) :
-			tabel.add_row((
-				petugas[i]['kode'] if pakai_kode else (i + 1),
-				petugas[i]['nama'],
-				petugas[i]['email'],
-				petugas[i]['nomor_telepon'],
-				petugas[i]['alamat']
-			))
+		tabel.field_names = ('No', 'Kode', 'Nama', 'Email', 'Nomor Telepon', 'Alamat')
 
-		print(tabel)
+		if berhalaman :
+			tampilkan_tabel_berhalaman(
+				queue=self.data.toqueue(),
+				tabel=tabel,
+				data_format=lambda data: self.format_data_tabel(data),
+				title=title
+			)
+		else :
+			petugas = self.data.tolist()
+			for i in range(len(petugas)) :
+				tabel.add_row((
+					(i + 1),
+					petugas[i]['kode'],
+					petugas[i]['nama'],
+					petugas[i]['email'],
+					petugas[i]['nomor_telepon'],
+					petugas[i]['alamat']
+				))
+
+			print(tabel)
+
+	def format_data_tabel(self, data) :
+		return (
+			data['kode'],
+			data['nama'],
+			data['email'],
+			data['nomor_telepon'],
+			data['alamat']
+		)
 
 	def tampilkan_petugas(self, pesan=None) :
 		try :
+			title = f"Halaman: Admin > Manajemen Petugas > {colored('Tampilkan Petugas', 'blue')}"
 			bersihkan_console()
-			print(f"Halaman: Admin > Manajemen Petugas > {colored('Tampilkan Petugas', 'blue')}")
+			print(title)
 
 			if pesan : print(pesan)
 
-			self.tampilkan_tabel_petugas()
-			input('...')
+			self.tampilkan_tabel_petugas(berhalaman=True, title=title)
 
 			return self.menu_manajemen_petugas()
 			
-		except KeyboardInterrupt :
+		except KeyboardInterrupt or EOFError :
 			return self.menu_manajemen_petugas()
 
 	def tambah_petugas(self, pesan=None) :
@@ -131,7 +149,7 @@ class ManajemenPetugas :
 
 			return self.tampilkan_petugas(pesan=colored('Berhasil menambah petugas.', 'green'))
 
-		except KeyboardInterrupt :
+		except KeyboardInterrupt or EOFError :
 			return self.menu_manajemen_petugas()
 
 	def hapus_petugas(self, pesan=None) :
@@ -141,7 +159,7 @@ class ManajemenPetugas :
 
 			if pesan : print(pesan) # pesan tambahan, opsional
 
-			self.tampilkan_tabel_petugas(pakai_kode=True)
+			self.tampilkan_tabel_petugas()
 			kode_petugas = input('Pilih kode:\n> ')
 
 			if kode_petugas :
@@ -160,5 +178,5 @@ class ManajemenPetugas :
 			
 			return self.hapus_petugas(pesan=colored('Mohon pilih kode petugas.', 'red'))
 
-		except KeyboardInterrupt :
+		except KeyboardInterrupt or EOFError :
 			return self.menu_manajemen_petugas()

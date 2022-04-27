@@ -1,6 +1,6 @@
 from prettytable import PrettyTable
 from data_class import LinkedListOfDict
-from helper import bersihkan_console
+from helper import bersihkan_console, tampilkan_tabel_berhalaman
 from termcolor import colored
 
 class ManajemenBuku :
@@ -37,41 +37,61 @@ class ManajemenBuku :
 			else :
 				return self.menu_manajemen_buku()
 
-		except KeyboardInterrupt :
+		except KeyboardInterrupt or EOFError :
 			return self.app.role_petugas.menu_petugas()
 
-	def tampilkan_tabel_buku(self, pakai_kode=False) :
+	def tampilkan_tabel_buku(self, berhalaman=False, title=None) :
 		tabel = PrettyTable()
 		tabel.title = 'Data Buku'
-		tabel.field_names = ('Kode' if pakai_kode else 'No.', 'ISBN', 'Judul', 'Penulis', 'Genre', 'Jumlah Halaman', 'Jumlah')
-		
-		buku = self.data.tolist()
-		for i in range(len(buku)) :
-			tabel.add_row((
-				buku[i]['kode'] if pakai_kode else (i + 1),
-				buku[i]['isbn'],
-				buku[i]['judul'],
-				buku[i]['penulis'],
-				buku[i]['genre'],
-				buku[i]['jumlah_halaman'],
-				buku[i]['jumlah'],
-			))
+		tabel.field_names = ('No', 'Kode', 'ISBN', 'Judul', 'Penulis', 'Genre', 'Jumlah Halaman', 'Jumlah')
 
-		print(tabel)
+		if berhalaman :
+			tampilkan_tabel_berhalaman(
+				queue=self.data.toqueue(),
+				tabel=tabel,
+				data_format=lambda data: self.format_data_tabel(data),
+				title=title
+			)
+		else :
+			buku = self.data.tolist()
+			for i in range(len(buku)) :
+				tabel.add_row((
+					(i + 1),
+					buku[i]['kode'],
+					buku[i]['isbn'],
+					buku[i]['judul'],
+					buku[i]['penulis'],
+					buku[i]['genre'],
+					buku[i]['jumlah_halaman'],
+					buku[i]['jumlah'],
+				))
+
+			print(tabel)
+
+	def format_data_tabel(self, data) :
+		return (
+			data['kode'],
+			data['isbn'],
+			data['judul'],
+			data['penulis'],
+			data['genre'],
+			data['jumlah_halaman'],
+			data['jumlah'],
+		)
 
 	def tampilkan_buku(self, pesan=None) :
 		try :
+			title = f"Halaman: Petugas > Manajemen Buku > {colored('Tampilkan Buku', 'blue')}"
 			bersihkan_console()
-			print(f"Halaman: Petugas > Manajemen Buku > {colored('Tampilkan Buku', 'blue')}")
+			print(title)
 
 			if pesan : print(pesan)
 
-			self.tampilkan_tabel_buku()
-			input('...')
+			self.tampilkan_tabel_buku(berhalaman=True, title=title)
 
 			return self.menu_manajemen_buku()
 			
-		except KeyboardInterrupt :
+		except KeyboardInterrupt or EOFError :
 			return self.menu_manajemen_buku()
 
 	def tambah_buku(self, pesan=None) :
@@ -130,7 +150,7 @@ class ManajemenBuku :
 
 			return self.tampilkan_buku(pesan=colored('Berhasil menambah buku.', 'green'))
 
-		except KeyboardInterrupt :
+		except KeyboardInterrupt or EOFError :
 			return self.menu_manajemen_buku()
 
 	def edit_buku(self, pesan=None) :
@@ -140,7 +160,7 @@ class ManajemenBuku :
 
 			if pesan : print(pesan) # pesan tambahan, opsional
 
-			self.tampilkan_tabel_buku(pakai_kode=True)
+			self.tampilkan_tabel_buku()
 			kode_buku = input('Pilih kode buku:\n> ')
 
 			if kode_buku :
@@ -195,7 +215,7 @@ class ManajemenBuku :
 
 			return self.edit_buku(pesan=colored('Pilih kode buku yang tersedia.', 'red'))
 
-		except KeyboardInterrupt :
+		except KeyboardInterrupt or EOFError :
 			return self.menu_manajemen_buku()
 
 	def hapus_buku(self, pesan=None) :
@@ -205,7 +225,7 @@ class ManajemenBuku :
 
 			if pesan : print(pesan) # pesan tambahan, opsional
 
-			self.tampilkan_tabel_buku(pakai_kode=True)
+			self.tampilkan_tabel_buku()
 			kode_buku = input('Pilih kode:\n> ')
 
 			if kode_buku :
@@ -224,5 +244,5 @@ class ManajemenBuku :
 			
 			return self.hapus_buku(pesan=colored('Mohon pilih kode buku.', 'red'))
 
-		except KeyboardInterrupt :
+		except KeyboardInterrupt or EOFError :
 			return self.menu_manajemen_buku()

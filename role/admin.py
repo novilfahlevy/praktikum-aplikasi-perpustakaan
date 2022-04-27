@@ -49,7 +49,7 @@ class RoleAdmin(BaseUser) :
 			else :
 				return self.menu_admin()
 
-		except KeyboardInterrupt :
+		except KeyboardInterrupt or EOFError :
 			return self.app.main(force_close=True)
 
 	def simpan_data(self) :

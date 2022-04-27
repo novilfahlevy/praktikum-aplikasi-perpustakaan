@@ -82,7 +82,7 @@ class Auth :
 			else :
 				return self.login(colored('Akun tidak ditemukan', 'yellow'))
 
-		except KeyboardInterrupt :
+		except KeyboardInterrupt or EOFError :
 			print('\nBye')
 
 	def logout(self) :

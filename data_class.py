@@ -1,6 +1,6 @@
-from random import randint
-from time import sleep
-from helper import bersihkan_console, kode_generator
+
+from helper import kode_generator
+
 
 class LinkedListNode :
   def __init__(self, data=None) :
@@ -263,20 +263,6 @@ class Queue :
 
 		return results
 
-# a = Queue()
-
-# a.enqueue(1)
-# a.enqueue(2)
-
-# aksi = ''
-# while aksi != 'exit' :
-# 	bersihkan_console()
-# 	print(a.tolist())
-
-# 	aksi = input('\nAksi : ')
-# 	if aksi == 'l' : a.requeue(2)
-# 	if aksi == 'r' : a.requeue_reverse(2)
-
 def merge_sort(lst, compare):
   if len(lst) <= 1 :
     return lst
@@ -287,7 +273,6 @@ def merge_sort(lst, compare):
   right = merge_sort(lst[mid:len(lst)], compare)
   
   return merge(left, right, compare)
-
 
 def merge(left, right, compare) :
   result = []

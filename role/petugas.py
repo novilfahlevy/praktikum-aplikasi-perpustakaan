@@ -49,7 +49,7 @@ class RolePetugas(BaseUser) :
 			else :
 				return self.menu_petugas()
 
-		except KeyboardInterrupt :
+		except KeyboardInterrupt or EOFError :
 			return self.app.main(force_close=True)
 
 	def simpan_data(self) :

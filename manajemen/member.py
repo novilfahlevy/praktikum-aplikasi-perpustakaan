@@ -1,7 +1,7 @@
 from bcrypt import re
 from prettytable import PrettyTable
 from data_class import LinkedListOfDict
-from helper import bersihkan_console, hash_password
+from helper import bersihkan_console, hash_password, tampilkan_tabel_berhalaman
 from termcolor import colored
 
 class ManajemenMember :
@@ -38,39 +38,57 @@ class ManajemenMember :
 			else :
 				return self.menu_manajemen_member()
 
-		except KeyboardInterrupt :
+		except KeyboardInterrupt or EOFError :
 			return self.app.role_petugas.menu_petugas()
 
-	def tampilkan_tabel_member(self, pakai_kode=False) :
+	def tampilkan_tabel_member(self, berhalaman=False, title=None) :
 		tabel = PrettyTable()
 		tabel.title = 'Data Member'
-		tabel.field_names = ('Kode' if pakai_kode else 'No.', 'Nama', 'Email', 'Nomor Telepon', 'Alamat')
-		
-		member = self.data.tolist()
-		for i in range(len(member)) :
-			tabel.add_row((
-				member[i]['kode'] if pakai_kode else (i + 1),
-				member[i]['nama'],
-				member[i]['email'],
-				member[i]['nomor_telepon'],
-				member[i]['alamat']
-			))
+		tabel.field_names = ('No', 'Kode', 'Nama', 'Email', 'Nomor Telepon', 'Alamat')
 
-		print(tabel)
+		if berhalaman :
+			tampilkan_tabel_berhalaman(
+				queue=self.data.toqueue(),
+				tabel=tabel,
+				data_format=lambda data: self.format_data_tabel(data),
+				title=title
+			)
+		else :
+			member = self.data.tolist()
+			for i in range(len(member)) :
+				tabel.add_row((
+					(i + 1),
+					member[i]['kode'],
+					member[i]['nama'],
+					member[i]['email'],
+					member[i]['nomor_telepon'],
+					member[i]['alamat']
+				))
+
+			print(tabel)
+
+	def format_data_tabel(self, data) :
+		return (
+			data['kode'],
+			data['nama'],
+			data['email'],
+			data['nomor_telepon'],
+			data['alamat']
+		)
 
 	def tampilkan_member(self, pesan=None) :
 		try :
+			title = f"Halaman: Petugas > Manajemen Member > {colored('Tampilkan Member', 'blue')}"
 			bersihkan_console()
-			print(f"Halaman: Petugas > Manajemen Member > {colored('Tampilkan Member', 'blue')}")
+			print(title)
 
 			if pesan : print(pesan)
 
-			self.tampilkan_tabel_member()
-			input('...')
+			self.tampilkan_tabel_member(berhalaman=True, title=title)
 
 			return self.menu_manajemen_member()
 			
-		except KeyboardInterrupt :
+		except KeyboardInterrupt or EOFError :
 			return self.menu_manajemen_member()
 
 	def tambah_member(self, pesan=None) :
@@ -130,7 +148,7 @@ class ManajemenMember :
 
 			return self.tampilkan_member(pesan=colored('Berhasil menambah member.', 'green'))
 
-		except KeyboardInterrupt :
+		except KeyboardInterrupt or EOFError :
 			return self.menu_manajemen_member()
 
 	def edit_member(self, pesan=None) :
@@ -140,7 +158,7 @@ class ManajemenMember :
 
 			if pesan : print(pesan) # pesan tambahan, opsional
 
-			self.tampilkan_tabel_member(pakai_kode=True)
+			self.tampilkan_tabel_member()
 			kode_member = input('Pilih kode member:\n> ')
 
 			if kode_member :
@@ -199,7 +217,7 @@ class ManajemenMember :
 
 			return self.edit_member(pesan=colored('Pilih kode member yang tersedia.', 'red'))
 
-		except KeyboardInterrupt :
+		except KeyboardInterrupt or EOFError :
 			return self.menu_manajemen_member()
 
 	def hapus_member(self, pesan=None) :
@@ -209,7 +227,7 @@ class ManajemenMember :
 
 			if pesan : print(pesan) # pesan tambahan, opsional
 
-			self.tampilkan_tabel_member(pakai_kode=True)
+			self.tampilkan_tabel_member()
 			kode_member = input('Pilih kode:\n> ')
 
 			if kode_member :
@@ -228,5 +246,5 @@ class ManajemenMember :
 			
 			return self.hapus_member(pesan=colored('Mohon pilih kode member.', 'red'))
 
-		except KeyboardInterrupt :
+		except KeyboardInterrupt or EOFError :
 			return self.menu_manajemen_member()

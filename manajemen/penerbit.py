@@ -1,7 +1,7 @@
 from bcrypt import re
 from prettytable import PrettyTable
 from data_class import LinkedListOfDict
-from helper import bersihkan_console
+from helper import bersihkan_console, tampilkan_tabel_berhalaman
 from termcolor import colored
 
 class ManajemenPenerbit :
@@ -38,39 +38,57 @@ class ManajemenPenerbit :
 			else :
 				return self.menu_manajemen_penerbit()
 
-		except KeyboardInterrupt :
+		except KeyboardInterrupt or EOFError :
 			return self.app.role_admin.menu_admin()
 
-	def tampilkan_tabel_penerbit(self, pakai_kode=False) :
+	def tampilkan_tabel_penerbit(self, berhalaman=False, title=None) :
 		tabel = PrettyTable()
 		tabel.title = 'Data Penerbit'
-		tabel.field_names = ('Kode' if pakai_kode else 'No.', 'Nama', 'Email', 'Nomor Telepon', 'Alamat')
-		
-		penerbit = self.data.tolist()
-		for i in range(len(penerbit)) :
-			tabel.add_row((
-				penerbit[i]['kode'] if pakai_kode else (i + 1),
-				penerbit[i]['nama'],
-				penerbit[i]['email'],
-				penerbit[i]['nomor_telepon'],
-				penerbit[i]['alamat']
-			))
+		tabel.field_names = ('No', 'Kode', 'Nama', 'Email', 'Nomor Telepon', 'Alamat')
 
-		print(tabel)
+		if berhalaman :
+			tampilkan_tabel_berhalaman(
+				queue=self.data.toqueue(),
+				tabel=tabel,
+				data_format=lambda data: self.format_data_tabel(data),
+				title=title
+			)
+		else :
+			penerbit = self.data.tolist()
+			for i in range(len(penerbit)) :
+				tabel.add_row((
+					(i + 1),
+					penerbit[i]['kode'],
+					penerbit[i]['nama'],
+					penerbit[i]['email'],
+					penerbit[i]['nomor_telepon'],
+					penerbit[i]['alamat']
+				))
+
+			print(tabel)
+
+	def format_data_tabel(self, data) :
+		return (
+			data['kode'],
+			data['nama'],
+			data['email'],
+			data['nomor_telepon'],
+			data['alamat']
+		)
 
 	def tampilkan_penerbit(self, pesan=None) :
 		try :
+			title = f"Halaman: Admin > Manajemen Penerbit > {colored('Tampilkan Penerbit', 'blue')}"
 			bersihkan_console()
-			print(f"Halaman: Admin > Manajemen Penerbit > {colored('Tampilkan Penerbit', 'blue')}")
+			print(title)
 
 			if pesan : print(pesan)
 
-			self.tampilkan_tabel_penerbit()
-			input('...')
+			self.tampilkan_tabel_penerbit(berhalaman=True, title=title)
 
 			return self.menu_manajemen_penerbit()
 			
-		except KeyboardInterrupt :
+		except KeyboardInterrupt or EOFError :
 			return self.menu_manajemen_penerbit()
 
 	def tambah_penerbit(self, pesan=None) :
@@ -124,7 +142,7 @@ class ManajemenPenerbit :
 
 			return self.tampilkan_penerbit(pesan=colored('Berhasil menambah penerbit.', 'green'))
 
-		except KeyboardInterrupt :
+		except KeyboardInterrupt or EOFError :
 			return self.menu_manajemen_penerbit()
 
 	def edit_penerbit(self, pesan=None) :
@@ -134,7 +152,7 @@ class ManajemenPenerbit :
 
 			if pesan : print(pesan) # pesan tambahan, opsional
 
-			self.tampilkan_tabel_penerbit(pakai_kode=True)
+			self.tampilkan_tabel_penerbit()
 			kode_penerbit = input('Pilih kode:\n> ')
 
 			if kode_penerbit :
@@ -190,7 +208,7 @@ class ManajemenPenerbit :
 			
 			return self.edit_penerbit(pesan=colored('Mohon pilih kode penerbit yang tersedia.', 'red'))
 
-		except KeyboardInterrupt :
+		except KeyboardInterrupt or EOFError :
 			return self.menu_manajemen_penerbit()
 
 	def cek_penerbit(self, kode) :
@@ -203,7 +221,7 @@ class ManajemenPenerbit :
 
 			if pesan : print(pesan) # pesan tambahan, opsional
 
-			self.tampilkan_tabel_penerbit(pakai_kode=True)
+			self.tampilkan_tabel_penerbit()
 			kode_penerbit = input('Pilih kode:\n> ')
 
 			if kode_penerbit :
@@ -222,5 +240,5 @@ class ManajemenPenerbit :
 			
 			return self.hapus_penerbit(pesan=colored('Mohon pilih kode penerbit yang tersedia.', 'red'))
 
-		except KeyboardInterrupt :
+		except KeyboardInterrupt or EOFError :
 			return self.menu_manajemen_penerbit()

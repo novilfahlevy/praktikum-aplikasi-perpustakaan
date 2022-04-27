@@ -55,7 +55,7 @@ class BaseUser :
 				return self.menu_admin(pesan=colored('Berhasil mengganti profil.', 'green'))
 			return self.menu_petugas(pesan=colored('Berhasil mengganti profil.', 'green'))
 	
-		except KeyboardInterrupt :
+		except KeyboardInterrupt or EOFError :
 			if self.app.auth.session['role'] == 'admin' :
 				return self.menu_admin()
 			return self.menu_petugas()

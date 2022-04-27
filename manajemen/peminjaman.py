@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from prettytable import PrettyTable
 from data_class import LinkedListOfDict
-from helper import bersihkan_console, cek_tanggal_valid, konversi_format
+from helper import bersihkan_console, cek_tanggal_valid, konversi_format, tampilkan_tabel_berhalaman
 from termcolor import colored
 
 class ManajemenPeminjaman :
@@ -38,39 +38,67 @@ class ManajemenPeminjaman :
 			else :
 				return self.menu_manajemen_peminjaman()
 
-		except KeyboardInterrupt :
+		except KeyboardInterrupt or EOFError :
 			return self.app.role_petugas.menu_petugas()
 
-	def tampilkan_tabel_peminjaman(self, pakai_kode=False, belum_dikembalikan=False) :
+	def tampilkan_tabel_peminjaman(self, belum_dikembalikan=False, berhalaman=False, title=None) :
 		tabel = PrettyTable()
 		tabel.title = 'Daftar Peminjaman'
-		tabel.field_names = ('Kode' if pakai_kode else 'No', 'Petugas', 'Member', 'ISBN', 'Dari', 'Sampai', 'Tenggat', 'Hitungan Denda')
+		tabel.field_names = ('No', 'Kode', 'Petugas', 'Member', 'ISBN', 'Dari', 'Sampai', 'Tenggat', 'Hitungan Denda')
 
 		peminjaman = self.data.tolist(sort=lambda l, r: self.urutkan_peminjaman(l, r))
 
 		if belum_dikembalikan == True :
 			peminjaman = list(filter(lambda p: not bool(p['tanggal_selesai']), peminjaman))
 
-		for i in range(len(peminjaman)) :
-			petugas = self.app.petugas.data.search(peminjaman[i]['kode_petugas'], 'kode')
-			member  = self.app.member.data.search(peminjaman[i]['kode_member'], 'kode')
-			buku    = self.app.buku.data.search(peminjaman[i]['kode_buku'], 'kode')
+		if berhalaman :
+			tampilkan_tabel_berhalaman(
+				queue=self.data.toqueue(),
+				tabel=tabel,
+				data_format=lambda data: self.format_data_tabel(data),
+				title=title
+			)
+		else :
+			for i in range(len(peminjaman)) :
+				petugas = self.app.petugas.data.search(peminjaman[i]['kode_petugas'], 'kode')
+				member  = self.app.member.data.search(peminjaman[i]['kode_member'], 'kode')
+				buku    = self.app.buku.data.search(peminjaman[i]['kode_buku'], 'kode')
 
-			if peminjaman[i]['tanggal_selesai'] :
-				jumlah_telat = (datetime.strptime(str(peminjaman[i]['tanggal_selesai']), '%Y-%m-%d') - datetime.strptime(str(peminjaman[i]['tenggat']), '%Y-%m-%d')).days
+				if peminjaman[i]['tanggal_selesai'] :
+					jumlah_telat = (datetime.strptime(str(peminjaman[i]['tanggal_selesai']), '%Y-%m-%d') - datetime.strptime(str(peminjaman[i]['tenggat']), '%Y-%m-%d')).days
 
-			tabel.add_row((
-				peminjaman[i]['kode'] if pakai_kode else (i + 1),
-				petugas['nama'],
-				member['nama'],
-				buku['isbn'],
-				konversi_format(peminjaman[i]['tanggal_mulai'], '%Y-%m-%d', '%d-%m-%Y'),
-				konversi_format(peminjaman[i]['tanggal_selesai'], '%Y-%m-%d', '%d-%m-%Y') if peminjaman[i]['tanggal_selesai'] else '-',
-				konversi_format(peminjaman[i]['tenggat'], '%Y-%m-%d', '%d-%m-%Y'),
-				jumlah_telat * peminjaman[i]['denda'] if peminjaman[i]['tanggal_selesai'] and jumlah_telat > 0 else '-',
-			))
+				tabel.add_row((
+					(i + 1),
+					peminjaman[i]['kode'],
+					petugas['nama'],
+					member['nama'],
+					buku['isbn'],
+					konversi_format(peminjaman[i]['tanggal_mulai'], '%Y-%m-%d', '%d-%m-%Y'),
+					konversi_format(peminjaman[i]['tanggal_selesai'], '%Y-%m-%d', '%d-%m-%Y') if peminjaman[i]['tanggal_selesai'] else '-',
+					konversi_format(peminjaman[i]['tenggat'], '%Y-%m-%d', '%d-%m-%Y'),
+					jumlah_telat * peminjaman[i]['denda'] if peminjaman[i]['tanggal_selesai'] and jumlah_telat > 0 else '-',
+				))
 
-		print(tabel)
+			print(tabel)
+
+	def format_data_tabel(self, data) :
+		petugas = self.app.petugas.data.search(data['kode_petugas'], 'kode')
+		member  = self.app.member.data.search(data['kode_member'], 'kode')
+		buku    = self.app.buku.data.search(data['kode_buku'], 'kode')
+
+		if data['tanggal_selesai'] :
+			jumlah_telat = (datetime.strptime(str(data['tanggal_selesai']), '%Y-%m-%d') - datetime.strptime(str(data['tenggat']), '%Y-%m-%d')).days
+		
+		return (
+			data['kode'],
+			petugas['nama'],
+			member['nama'],
+			buku['isbn'],
+			konversi_format(data['tanggal_mulai'], '%Y-%m-%d', '%d-%m-%Y'),
+			konversi_format(data['tanggal_selesai'], '%Y-%m-%d', '%d-%m-%Y') if data['tanggal_selesai'] else '-',
+			konversi_format(data['tenggat'], '%Y-%m-%d', '%d-%m-%Y'),
+			jumlah_telat * data['denda'] if data['tanggal_selesai'] and jumlah_telat > 0 else '-',
+		)
 
 	def urutkan_peminjaman(self, l, r) :
 		format_tanggal = '%Y-%m-%d'
@@ -86,17 +114,17 @@ class ManajemenPeminjaman :
 
 	def tampilkan_peminjaman(self, pesan=None) :
 		try :
+			title = f"Halaman: Petugas > Peminjaman > {colored('Tampilkan Peminjaman', 'blue')}"
 			bersihkan_console()
-			print(f"Halaman: Petugas > Peminjaman > {colored('Tampilkan Peminjaman', 'blue')}")
+			print(title)
 
 			if pesan is not None : print(pesan)
 			
-			self.tampilkan_tabel_peminjaman(pakai_kode=True)
-			input('...')
+			self.tampilkan_tabel_peminjaman(berhalaman=True, title=title)
 
 			return self.menu_manajemen_peminjaman()
 
-		except KeyboardInterrupt :
+		except KeyboardInterrupt or EOFError :
 			return self.menu_manajemen_peminjaman()
 
 	def tambah_peminjaman(self, pesan=None) :
@@ -106,8 +134,8 @@ class ManajemenPeminjaman :
 
 			if pesan is not None : print(pesan)
 
-			self.app.member.tampilkan_tabel_member(pakai_kode=True)
-			self.app.buku.tampilkan_tabel_buku(pakai_kode=True)
+			self.app.member.tampilkan_tabel_member()
+			self.app.buku.tampilkan_tabel_buku()
 			print()
 			kode_member   = input('Kode member              : ')
 			kode_buku     = input('Kode buku                : ')
@@ -147,7 +175,7 @@ class ManajemenPeminjaman :
 			
 			return self.tampilkan_peminjaman(pesan=colored('Peminjaman berhasil ditambah.', 'green'))
 		
-		except KeyboardInterrupt :
+		except KeyboardInterrupt or EOFError :
 			return self.menu_manajemen_peminjaman()
 
 	def pinjam_buku(self, kode_buku) :
@@ -175,7 +203,7 @@ class ManajemenPeminjaman :
 
 			if pesan is not None : print(pesan)
 
-			self.tampilkan_tabel_peminjaman(pakai_kode=True)
+			self.tampilkan_tabel_peminjaman()
 			kode_peminjaman = input('Pilih kode peminjaman:\n> ')
 			peminjaman = self.data.search(kode_peminjaman, 'kode')
 
@@ -191,7 +219,7 @@ class ManajemenPeminjaman :
 
 			return self.tampilkan_peminjaman(pesan=colored('Peminjaman telah dihapus.', 'green'))
 
-		except KeyboardInterrupt :
+		except KeyboardInterrupt or EOFError :
 			return self.menu_manajemen_peminjaman()
 	
 	def pengembalian(self, pesan=None) :
@@ -201,7 +229,7 @@ class ManajemenPeminjaman :
 
 			if pesan is not None : print(pesan)
 
-			self.tampilkan_tabel_peminjaman(pakai_kode=True, belum_dikembalikan=True)
+			self.tampilkan_tabel_peminjaman(belum_dikembalikan=True)
 			kode_peminjaman = input('Pilih kode peminjaman:\n> ')
 			peminjaman = self.data.search(kode_peminjaman, 'kode')
 
@@ -221,5 +249,5 @@ class ManajemenPeminjaman :
 
 			return self.tampilkan_peminjaman(pesan=colored('Buku telah dikembalikan.', 'green'))
 
-		except KeyboardInterrupt :
+		except KeyboardInterrupt or EOFError :
 			return self.menu_manajemen_peminjaman()
