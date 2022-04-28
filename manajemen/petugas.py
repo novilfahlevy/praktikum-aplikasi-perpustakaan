@@ -1,3 +1,4 @@
+from datetime import datetime
 from bcrypt import re
 from prettytable import PrettyTable
 from data_class import LinkedListOfDict
@@ -145,7 +146,8 @@ class ManajemenPetugas(Manajemen) :
 				'password': hash_password(password),
 				'nomor_telepon': nomor_telepon,
 				'alamat': alamat,
-				'role': role
+				'role': role,
+				'tanggal_dibuat': datetime.now().strftime('%Y-%m-%d')
 			})
 			self.app.role_admin.tersimpan = False
 

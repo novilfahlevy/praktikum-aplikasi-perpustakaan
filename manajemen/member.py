@@ -1,3 +1,4 @@
+from datetime import datetime
 from bcrypt import re
 from prettytable import PrettyTable
 from data_class import LinkedListOfDict
@@ -103,7 +104,6 @@ class ManajemenMember(Manajemen) :
 			# input data member
 			nama          = input('Nama             : ')
 			email         = input('Email            : ')
-			password      = input('Password (12345) : ') or '12345'
 			nomor_telepon = input('Nomor Telepon    : ')
 			alamat        = input('Alamat           : ')
 			role          = 'member'
@@ -129,7 +129,6 @@ class ManajemenMember(Manajemen) :
 			tabel_review.add_rows((
 				('Nama         ', nama),
 				('Email        ', email),
-				('Password     ', password),
 				('Nomor Telepon', nomor_telepon),
 				('Alamat       ', alamat),
 			))
@@ -141,10 +140,11 @@ class ManajemenMember(Manajemen) :
 			self.data.insert({
 				'nama': nama,
 				'email': email,
-				'password': hash_password(password),
+				'password': '',
 				'nomor_telepon': nomor_telepon,
 				'alamat': alamat,
-				'role': role
+				'role': role,
+				'tanggal_dibuat': datetime.now().strftime('%Y-%m-%d')
 			})
 			self.app.role_petugas.tersimpan = False
 
@@ -178,7 +178,6 @@ class ManajemenMember(Manajemen) :
 					if not nama : return self.edit_member(colored('Nama tidak boleh kosong.', 'red'))
 
 					if not email : return self.edit_member(colored('Email tidak boleh kosong.', 'red'))
-					if self.data.search(email, 'email') : return self.edit_member(colored('Email sudah digunakan.', 'red'))
 					if not re.fullmatch(aturan_email, email) : return self.edit_member(colored('Email tidak valid.', 'red'))
 
 					if not nomor_telepon : return self.edit_member(colored('Nomor telepon tidak boleh kosong.', 'red'))
