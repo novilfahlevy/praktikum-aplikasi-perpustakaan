@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from prettytable import PrettyTable
-from data_class import LinkedListOfDict
+from data_class import LinkedListOfDict, binary_search
 from helper import bersihkan_console, cek_tanggal_valid, konversi_format
 from termcolor import colored
 
@@ -233,7 +233,8 @@ class ManajemenPeminjaman(Manajemen) :
 
 			self.tampilkan_tabel_peminjaman(belum_dikembalikan=True)
 			kode_peminjaman = input('Pilih kode peminjaman:\n> ')
-			peminjaman = self.data.search(kode_peminjaman, 'kode')
+			peminjaman = self.data.tolist(sort=lambda l, r: l['kode'] < r['kode'])
+			peminjaman = binary_search(peminjaman, kode_peminjaman, 'kode')
 
 			if not kode_peminjaman or peminjaman is None :
 				return self.pengembalian(pesan=colored('Pilih kode peminjaman yang tersedia.', 'red'))
