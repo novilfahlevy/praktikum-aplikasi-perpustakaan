@@ -1,12 +1,9 @@
 from datetime import datetime
-from termcolor import colored
 import os
 import random
 import string
 import sys
 import bcrypt
-import math
-import keyboard
 
 def bersihkan_console() :
 	os.system('clear' if sys.platform == 'linux' else 'cls')
