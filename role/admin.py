@@ -4,9 +4,9 @@ from database import sql
 from helper import bersihkan_console
 from termcolor import colored
 
-from role.user import BaseUser
+from role.role import Role
 
-class RoleAdmin(BaseUser) :
+class RoleAdmin(Role) :
 	"""
 		Role admin.
 	"""

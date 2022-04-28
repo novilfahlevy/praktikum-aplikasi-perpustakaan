@@ -1,10 +1,12 @@
 from bcrypt import re
 from prettytable import PrettyTable
 from data_class import LinkedListOfDict
-from helper import bersihkan_console, hash_password, tampilkan_tabel_berhalaman
+from helper import bersihkan_console, hash_password
 from termcolor import colored
 
-class ManajemenMember :
+from manajemen.manajemen import Manajemen
+
+class ManajemenMember(Manajemen) :
 	"""
   	Manajemen member.
 	"""
@@ -47,7 +49,7 @@ class ManajemenMember :
 		tabel.field_names = ('No', 'Kode', 'Nama', 'Email', 'Nomor Telepon', 'Alamat')
 
 		if berhalaman :
-			tampilkan_tabel_berhalaman(
+			self.tampilkan_tabel_berhalaman(
 				queue=self.data.toqueue(),
 				tabel=tabel,
 				data_format=lambda data: self.format_data_tabel(data),

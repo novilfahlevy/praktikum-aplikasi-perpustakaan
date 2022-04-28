@@ -5,9 +5,9 @@ from termcolor import colored
 import pwinput
 
 
-class BaseUser :
+class Role :
 	"""
-		Base User untuk role class
+		Role class.
 	"""
 
 	def edit_profil(self, pesan=None) :

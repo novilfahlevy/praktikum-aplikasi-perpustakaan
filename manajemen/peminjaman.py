@@ -1,10 +1,12 @@
 from datetime import datetime, timedelta
 from prettytable import PrettyTable
 from data_class import LinkedListOfDict
-from helper import bersihkan_console, cek_tanggal_valid, konversi_format, tampilkan_tabel_berhalaman
+from helper import bersihkan_console, cek_tanggal_valid, konversi_format
 from termcolor import colored
 
-class ManajemenPeminjaman :
+from manajemen.manajemen import Manajemen
+
+class ManajemenPeminjaman(Manajemen) :
 	"""
 		Manajemen peminjaman.
 	"""
@@ -52,7 +54,7 @@ class ManajemenPeminjaman :
 			peminjaman = list(filter(lambda p: not bool(p['tanggal_selesai']), peminjaman))
 
 		if berhalaman :
-			tampilkan_tabel_berhalaman(
+			self.tampilkan_tabel_berhalaman(
 				queue=self.data.toqueue(),
 				tabel=tabel,
 				data_format=lambda data: self.format_data_tabel(data),

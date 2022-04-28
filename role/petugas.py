@@ -3,9 +3,9 @@ from database import sql
 from helper import bersihkan_console, konversi_format
 from termcolor import colored
 
-from role.user import BaseUser
+from role.role import Role
 
-class RolePetugas(BaseUser) :
+class RolePetugas(Role) :
 	"""
 		Role petugas.
 	"""
