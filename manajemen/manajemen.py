@@ -32,7 +32,7 @@ class Manajemen :
 
         print(tabel)
         
-        aksi = input('\nAksi ({}: kiri, {}: kanan, {}: kembali) : '.format(colored('l', 'yellow'), colored('r', 'yellow'), colored('enter', 'yellow')))
+        aksi = input('Aksi ({}: kiri, {}: kanan, {}: kembali) : '.format(colored('l', 'yellow'), colored('r', 'yellow'), colored('enter', 'yellow')))
         if aksi == 'l' :
           if halaman > 1 :
             queue.requeue()
