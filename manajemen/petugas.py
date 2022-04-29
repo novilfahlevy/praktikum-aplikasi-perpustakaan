@@ -78,8 +78,9 @@ class ManajemenPetugas(Manajemen) :
 
 	def tampilkan_petugas(self, pesan=None) :
 		try :
-			title = f"Halaman: Admin > Manajemen Petugas > {colored('Tampilkan Petugas', 'blue')}"
 			bersihkan_console()
+
+			title = f"Halaman: Admin > Manajemen Petugas > {colored('Tampilkan Petugas', 'blue')}"
 			print(title)
 
 			if pesan : print(pesan)
@@ -159,12 +160,14 @@ class ManajemenPetugas(Manajemen) :
 	def hapus_petugas(self, pesan=None) :
 		try :
 			bersihkan_console()
-			print(f"Halaman: Admin > Manajemen Petugas > {colored('Hapus Petugas', 'blue')}")
+
+			title = f"Halaman: Admin > Manajemen Petugas > {colored('Hapus Petugas', 'blue')}"
+			print(title)
 
 			if pesan : print(pesan) # pesan tambahan, opsional
 
-			self.tampilkan_tabel_petugas()
-			kode_petugas = input('Pilih kode:\n> ')
+			self.tampilkan_tabel_petugas(berhalaman=True, title=title)
+			kode_petugas = input('\nPilih kode:\n> ')
 
 			if kode_petugas :
 				if self.data.search(kode_petugas, 'kode') :

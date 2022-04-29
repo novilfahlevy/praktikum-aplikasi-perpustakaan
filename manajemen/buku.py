@@ -158,12 +158,14 @@ class ManajemenBuku(Manajemen) :
 	def edit_buku(self, pesan=None) :
 		try :
 			bersihkan_console()
-			print(f"Halaman: Petugas > Manajemen Buku > {colored('Edit Buku', 'blue')}")
+
+			title = f"Halaman: Petugas > Manajemen Buku > {colored('Edit Buku', 'blue')}"
+			print(title)
 
 			if pesan : print(pesan) # pesan tambahan, opsional
 
-			self.tampilkan_tabel_buku()
-			kode_buku = input('Pilih kode buku:\n> ')
+			self.tampilkan_tabel_buku(berhalaman=True, title=title)
+			kode_buku = input('\nPilih kode buku:\n> ')
 
 			if kode_buku :
 				buku = self.data.search(kode_buku, 'kode')
@@ -223,12 +225,14 @@ class ManajemenBuku(Manajemen) :
 	def hapus_buku(self, pesan=None) :
 		try :
 			bersihkan_console()
-			print(f"Halaman: Petugas > Manajemen Buku > {colored('Hapus Buku', 'blue')}")
+
+			title = f"Halaman: Petugas > Manajemen Buku > {colored('Hapus Buku', 'blue')}"
+			print(title)
 
 			if pesan : print(pesan) # pesan tambahan, opsional
 
-			self.tampilkan_tabel_buku()
-			kode_buku = input('Pilih kode:\n> ')
+			self.tampilkan_tabel_buku(berhalaman=True, title=title)
+			kode_buku = input('\nPilih kode:\n> ')
 
 			if kode_buku :
 				if self.data.search(kode_buku, 'kode') :

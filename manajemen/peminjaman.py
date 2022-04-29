@@ -43,7 +43,7 @@ class ManajemenPeminjaman(Manajemen) :
 		except KeyboardInterrupt or EOFError :
 			return self.app.role_petugas.menu_petugas()
 
-	def tampilkan_tabel_peminjaman(self, belum_dikembalikan=False, berhalaman=False, title=None) :
+	def tampilkan_tabel_peminjaman(self, berhalaman=True, title=None, belum_dikembalikan=False) :
 		tabel = PrettyTable()
 		tabel.title = 'Daftar Peminjaman'
 		tabel.field_names = ('No', 'Kode', 'Petugas', 'Member', 'ISBN', 'Dari', 'Sampai', 'Tenggat', 'Hitungan Denda')
@@ -116,8 +116,9 @@ class ManajemenPeminjaman(Manajemen) :
 
 	def tampilkan_peminjaman(self, pesan=None) :
 		try :
-			title = f"Halaman: Petugas > Peminjaman > {colored('Tampilkan Peminjaman', 'blue')}"
 			bersihkan_console()
+
+			title = f"Halaman: Petugas > Peminjaman > {colored('Tampilkan Peminjaman', 'blue')}"
 			print(title)
 
 			if pesan is not None : print(pesan)
@@ -201,12 +202,14 @@ class ManajemenPeminjaman(Manajemen) :
 	def hapus_peminjaman(self, pesan=None) :
 		try :
 			bersihkan_console()
-			print(f"Halaman: Petugas > Peminjaman > {colored('Hapus Peminjaman', 'blue')}")
+
+			title = f"Halaman: Petugas > Peminjaman > {colored('Hapus Peminjaman', 'blue')}"
+			print(title)
 
 			if pesan is not None : print(pesan)
 
-			self.tampilkan_tabel_peminjaman()
-			kode_peminjaman = input('Pilih kode peminjaman:\n> ')
+			self.tampilkan_tabel_peminjaman(berhalaman=True, title=title)
+			kode_peminjaman = input('\nPilih kode peminjaman:\n> ')
 			peminjaman = self.data.search(kode_peminjaman, 'kode')
 
 			if not kode_peminjaman or peminjaman is None :
@@ -227,12 +230,14 @@ class ManajemenPeminjaman(Manajemen) :
 	def pengembalian(self, pesan=None) :
 		try :
 			bersihkan_console()
-			print(f"Halaman: Petugas > Peminjaman > {colored('Pengembalian', 'blue')}")
+
+			title = f"Halaman: Petugas > Peminjaman > {colored('Pengembalian', 'blue')}"
+			print(title)
 
 			if pesan is not None : print(pesan)
 
-			self.tampilkan_tabel_peminjaman(belum_dikembalikan=True)
-			kode_peminjaman = input('Pilih kode peminjaman:\n> ')
+			self.tampilkan_tabel_peminjaman(belum_dikembalikan=True, berhalaman=True, title=title)
+			kode_peminjaman = input('\nPilih kode peminjaman:\n> ')
 			peminjaman = self.data.tolist(sort=lambda l, r: l['kode'] < r['kode'])
 			peminjaman = binary_search(peminjaman, kode_peminjaman, 'kode')
 

@@ -81,8 +81,9 @@ class ManajemenMember(Manajemen) :
 
 	def tampilkan_member(self, pesan=None) :
 		try :
-			title = f"Halaman: Petugas > Manajemen Member > {colored('Tampilkan Member', 'blue')}"
 			bersihkan_console()
+
+			title = f"Halaman: Petugas > Manajemen Member > {colored('Tampilkan Member', 'blue')}"
 			print(title)
 
 			if pesan : print(pesan)
@@ -156,12 +157,14 @@ class ManajemenMember(Manajemen) :
 	def edit_member(self, pesan=None) :
 		try :
 			bersihkan_console()
-			print(f"Halaman: Petugas > Manajemen Member > {colored('Edit Member', 'blue')}")
+
+			title = f"Halaman: Petugas > Manajemen Member > {colored('Edit Member', 'blue')}"
+			print(title)
 
 			if pesan : print(pesan) # pesan tambahan, opsional
 
-			self.tampilkan_tabel_member()
-			kode_member = input('Pilih kode member:\n> ')
+			self.tampilkan_tabel_member(berhalaman=True, title=title)
+			kode_member = input('\nPilih kode member:\n> ')
 
 			if kode_member :
 				member = self.data.search(kode_member, 'kode')
@@ -224,12 +227,14 @@ class ManajemenMember(Manajemen) :
 	def hapus_member(self, pesan=None) :
 		try :
 			bersihkan_console()
-			print(f"Halaman: Petugas > Manajemen Member > {colored('Hapus Member', 'blue')}")
+
+			title = f"Halaman: Petugas > Manajemen Member > {colored('Hapus Member', 'blue')}"
+			print(title)
 
 			if pesan : print(pesan) # pesan tambahan, opsional
 
-			self.tampilkan_tabel_member()
-			kode_member = input('Pilih kode:\n> ')
+			self.tampilkan_tabel_member(berhalaman=True, title=title)
+			kode_member = input('\nPilih kode:\n> ')
 
 			if kode_member :
 				if self.data.search(kode_member, 'kode') :

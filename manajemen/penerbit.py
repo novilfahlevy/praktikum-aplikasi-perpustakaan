@@ -80,8 +80,9 @@ class ManajemenPenerbit(Manajemen) :
 
 	def tampilkan_penerbit(self, pesan=None) :
 		try :
-			title = f"Halaman: Admin > Manajemen Penerbit > {colored('Tampilkan Penerbit', 'blue')}"
 			bersihkan_console()
+
+			title = f"Halaman: Admin > Manajemen Penerbit > {colored('Tampilkan Penerbit', 'blue')}"
 			print(title)
 
 			if pesan : print(pesan)
@@ -150,12 +151,14 @@ class ManajemenPenerbit(Manajemen) :
 	def edit_penerbit(self, pesan=None) :
 		try :
 			bersihkan_console()
-			print(f"Halaman: Admin > Manajemen Penerbit > {colored('Edit Penerbit', 'blue')}")
+
+			title = f"Halaman: Admin > Manajemen Penerbit > {colored('Edit Penerbit', 'blue')}"
+			print(title)
 
 			if pesan : print(pesan) # pesan tambahan, opsional
 
-			self.tampilkan_tabel_penerbit()
-			kode_penerbit = input('Pilih kode:\n> ')
+			self.tampilkan_tabel_penerbit(berhalaman=True, title=title)
+			kode_penerbit = input('\nPilih kode:\n> ')
 
 			if kode_penerbit :
 				if self.cek_penerbit(kode_penerbit) :
@@ -219,12 +222,14 @@ class ManajemenPenerbit(Manajemen) :
 	def hapus_penerbit(self, pesan=None) :
 		try :
 			bersihkan_console()
-			print(f"Halaman: Admin > Manajemen Penerbit > {colored('Hapus Penerbit', 'blue')}")
+
+			title = f"Halaman: Admin > Manajemen Penerbit > {colored('Hapus Penerbit', 'blue')}"
+			print(title)
 
 			if pesan : print(pesan) # pesan tambahan, opsional
 
-			self.tampilkan_tabel_penerbit()
-			kode_penerbit = input('Pilih kode:\n> ')
+			self.tampilkan_tabel_penerbit(berhalaman=True, title=title)
+			kode_penerbit = input('\nPilih kode:\n> ')
 
 			if kode_penerbit :
 				if self.cek_penerbit(kode_penerbit) :
