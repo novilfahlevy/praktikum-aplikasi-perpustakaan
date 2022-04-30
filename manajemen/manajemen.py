@@ -18,8 +18,8 @@ class Manajemen :
       while aksi != '' :
         bersihkan_console()
         if title : print(title)
-        print('Jumlah data : {}'.format(colored(str(jumlah_seluruh_data), 'blue')))
-        print('Bagian {} / {}'.format(halaman, colored(str(jumlah_halaman), 'blue')))
+        print('Jumlah data : {}'.format(jumlah_seluruh_data))
+        print('Bagian {} / {}'.format(halaman, jumlah_halaman))
         
         data = queue.tolist(jumlah_data_per_halaman)
         if halaman >= jumlah_halaman and jumlah_seluruh_data > jumlah_data_per_halaman :

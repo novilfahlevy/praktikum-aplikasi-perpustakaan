@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from prettytable import PrettyTable
 from data_class import LinkedListOfDict, binary_search
-from helper import bersihkan_console, cek_tanggal_valid, konversi_format
+from helper import bersihkan_console, cek_tanggal_valid, currency, konversi_format
 from termcolor import colored
 
 from manajemen.manajemen import Manajemen
@@ -46,7 +46,7 @@ class ManajemenPeminjaman(Manajemen) :
 	def tampilkan_tabel_peminjaman(self, berhalaman=True, title=None, belum_dikembalikan=False) :
 		tabel = PrettyTable()
 		tabel.title = 'Daftar Peminjaman'
-		tabel.field_names = ('No', 'Kode', 'Petugas', 'Member', 'ISBN', 'Dari', 'Sampai', 'Tenggat', 'Hitungan Denda')
+		tabel.field_names = ('No', 'Kode', 'Petugas', 'Member', 'ISBN', 'Dari', 'Sampai', 'Tenggat', 'Nominal Denda')
 
 		peminjaman = self.data.tolist(sort=lambda l, r: self.urutkan_peminjaman(l, r))
 
@@ -66,8 +66,10 @@ class ManajemenPeminjaman(Manajemen) :
 				member  = self.app.member.data.search(peminjaman[i]['kode_member'], 'kode')
 				buku    = self.app.buku.data.search(peminjaman[i]['kode_buku'], 'kode')
 
-				if peminjaman[i]['tanggal_selesai'] :
-					jumlah_telat = (datetime.strptime(str(peminjaman[i]['tanggal_selesai']), '%Y-%m-%d') - datetime.strptime(str(peminjaman[i]['tenggat']), '%Y-%m-%d')).days
+				format_tanggal = '%Y-%m-%d'
+				hari_ini = datetime.now().strftime(format_tanggal)
+
+				jumlah_telat = (datetime.strptime(str(peminjaman['tanggal_selesai'] if peminjaman['tanggal_selesai'] else hari_ini), '%Y-%m-%d') - datetime.strptime(str(peminjaman['tenggat']), '%Y-%m-%d')).days
 
 				tabel.add_row((
 					(i + 1),
@@ -78,7 +80,7 @@ class ManajemenPeminjaman(Manajemen) :
 					konversi_format(peminjaman[i]['tanggal_mulai'], '%Y-%m-%d', '%d-%m-%Y'),
 					konversi_format(peminjaman[i]['tanggal_selesai'], '%Y-%m-%d', '%d-%m-%Y') if peminjaman[i]['tanggal_selesai'] else '-',
 					konversi_format(peminjaman[i]['tenggat'], '%Y-%m-%d', '%d-%m-%Y'),
-					jumlah_telat * peminjaman[i]['denda'] if peminjaman[i]['tanggal_selesai'] and jumlah_telat > 0 else '-',
+					currency(jumlah_telat * peminjaman['denda']) if jumlah_telat > 0 else '-',
 				))
 
 			print(tabel)
@@ -88,8 +90,10 @@ class ManajemenPeminjaman(Manajemen) :
 		member  = self.app.member.data.search(data['kode_member'], 'kode')
 		buku    = self.app.buku.data.search(data['kode_buku'], 'kode')
 
-		if data['tanggal_selesai'] :
-			jumlah_telat = (datetime.strptime(str(data['tanggal_selesai']), '%Y-%m-%d') - datetime.strptime(str(data['tenggat']), '%Y-%m-%d')).days
+		format_tanggal = '%Y-%m-%d'
+		hari_ini = datetime.now().strftime(format_tanggal)
+
+		jumlah_telat = (datetime.strptime(str(data['tanggal_selesai'] if data['tanggal_selesai'] else hari_ini), '%Y-%m-%d') - datetime.strptime(str(data['tenggat']), '%Y-%m-%d')).days
 		
 		return (
 			data['kode'],
@@ -99,7 +103,7 @@ class ManajemenPeminjaman(Manajemen) :
 			konversi_format(data['tanggal_mulai'], '%Y-%m-%d', '%d-%m-%Y'),
 			konversi_format(data['tanggal_selesai'], '%Y-%m-%d', '%d-%m-%Y') if data['tanggal_selesai'] else '-',
 			konversi_format(data['tenggat'], '%Y-%m-%d', '%d-%m-%Y'),
-			jumlah_telat * data['denda'] if data['tanggal_selesai'] and jumlah_telat > 0 else '-',
+			currency(jumlah_telat * data['denda']) if jumlah_telat > 0 else '-',
 		)
 
 	def urutkan_peminjaman(self, l, r) :
