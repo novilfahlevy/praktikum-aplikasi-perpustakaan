@@ -1,11 +1,12 @@
 from datetime import datetime
 from bcrypt import re
 from prettytable import PrettyTable
-from data_class import LinkedListOfDict
 from helper import bersihkan_console, hash_password
 from termcolor import colored
+from asd.linked_list import LinkedList
 
 from manajemen.manajemen import Manajemen
+from model.pengguna import Pengguna
 
 class ManajemenPetugas(Manajemen) :
 	"""
@@ -14,7 +15,7 @@ class ManajemenPetugas(Manajemen) :
   
 	def __init__(self, app) :
 		self.app = app
-		self.data = LinkedListOfDict(softdelete=True)
+		self.data = LinkedList()
 
 	def menu_manajemen_petugas(self) :
 		try :
@@ -41,9 +42,9 @@ class ManajemenPetugas(Manajemen) :
 		except KeyboardInterrupt or EOFError :
 			return self.app.role_admin.menu_admin()
 
-	def tampilkan_tabel_petugas(self, berhalaman=False, title=None) :
+	def tampilkan_tabel_petugas(self, berhalaman=False, judul_halaman=None) :
 		tabel = PrettyTable()
-		tabel.title = 'Data Petugas'
+		tabel.judul_halaman = 'Data Petugas'
 		tabel.field_names = ('No', 'Kode', 'Nama', 'Email', 'Nomor Telepon', 'Alamat')
 
 		if berhalaman :
@@ -51,41 +52,41 @@ class ManajemenPetugas(Manajemen) :
 				queue=self.data.toqueue(),
 				tabel=tabel,
 				data_format=lambda data: self.format_data_tabel(data),
-				title=title
+				judul_halaman=judul_halaman
 			)
 		else :
 			petugas = self.data.tolist()
 			for i in range(len(petugas)) :
 				tabel.add_row((
 					(i + 1),
-					petugas[i]['kode'],
-					petugas[i]['nama'],
-					petugas[i]['email'],
-					petugas[i]['nomor_telepon'],
-					petugas[i]['alamat']
+					petugas[i].kode,
+					petugas[i].nama,
+					petugas[i].email,
+					petugas[i].nomor_telepon,
+					petugas[i].alamat
 				))
 
 			print(tabel)
 
 	def format_data_tabel(self, data) :
 		return (
-			data['kode'],
-			data['nama'],
-			data['email'],
-			data['nomor_telepon'],
-			data['alamat']
+			data.kode,
+			data.nama,
+			data.email,
+			data.nomor_telepon,
+			data.alamat
 		)
 
 	def tampilkan_petugas(self, pesan=None) :
 		try :
 			bersihkan_console()
 
-			title = f"Halaman: Admin > Manajemen Petugas > {colored('Tampilkan Petugas', 'blue')}"
-			print(title)
+			judul_halaman = f"Halaman: Admin > Manajemen Petugas > {colored('Tampilkan Petugas', 'blue')}"
+			print(judul_halaman)
 
 			if pesan : print(pesan)
 
-			self.tampilkan_tabel_petugas(berhalaman=True, title=title)
+			self.tampilkan_tabel_petugas(berhalaman=True, judul_halaman=judul_halaman)
 
 			return self.menu_manajemen_petugas()
 			
@@ -112,11 +113,11 @@ class ManajemenPetugas(Manajemen) :
 			if not nama : return self.tambah_petugas(colored('Nama tidak boleh kosong.', 'red'))
 
 			if not email : return self.tambah_petugas(colored('Email tidak boleh kosong.', 'red'))
-			if self.data.search(email, 'email') : return self.tambah_petugas(colored('Email sudah digunakan.', 'red'))
+			if self.data.cari(email, 'email') : return self.tambah_petugas(colored('Email sudah digunakan.', 'red'))
 			if not re.fullmatch(aturan_email, email) : return self.tambah_petugas(colored('Email tidak valid.', 'red'))
 
 			if not nomor_telepon : return self.tambah_petugas(colored('Nomor telepon tidak boleh kosong.', 'red'))
-			if self.data.search(nomor_telepon, 'nomor_telepon') : return self.tambah_petugas(colored('Nomor telepon sudah digunakan', 'red'))
+			if self.data.cari(nomor_telepon, 'nomor_telepon') : return self.tambah_petugas(colored('Nomor telepon sudah digunakan', 'red'))
 			if not nomor_telepon.isnumeric() : return self.tambah_petugas(colored('Nomor telepon tidak valid.', 'red'))
 
 			if not alamat : return self.tambah_petugas(colored('Alamat tidak boleh kosong.', 'red'))
@@ -126,7 +127,7 @@ class ManajemenPetugas(Manajemen) :
 
 			# review dan konfirmasi kembali data petugas
 			tabel_review = PrettyTable()
-			tabel_review.title = 'Konfirmasi Data Petugas'
+			tabel_review.judul_halaman = 'Konfirmasi Data Petugas'
 			tabel_review.field_names = ('Data', 'Input')
 			tabel_review.align = 'l'
 			tabel_review.add_rows((
@@ -140,16 +141,18 @@ class ManajemenPetugas(Manajemen) :
 			print(tabel_review)
 			input(colored('Tekan untuk konfirmasi...', 'yellow'))
 			print('Loading...')
+
+			petugas = Pengguna()
+			petugas.tetapkan_kode()
+			petugas.nama = nama
+			petugas.email = email
+			petugas.password = hash_password(password)
+			petugas.nomor_telepon = nomor_telepon
+			petugas.alamat = alamat
+			petugas.role = role
+			petugas.tanggal_dibuat = datetime.now().strftime('%Y-%m-%d')
 			
-			self.data.insert({
-				'nama': nama,
-				'email': email,
-				'password': hash_password(password),
-				'nomor_telepon': nomor_telepon,
-				'alamat': alamat,
-				'role': role,
-				'tanggal_dibuat': datetime.now().strftime('%Y-%m-%d')
-			})
+			self.data.insert(petugas)
 			self.app.role_admin.tersimpan = False
 
 			return self.tampilkan_petugas(pesan=colored('Berhasil menambah petugas.', 'green'))
@@ -161,16 +164,16 @@ class ManajemenPetugas(Manajemen) :
 		try :
 			bersihkan_console()
 
-			title = f"Halaman: Admin > Manajemen Petugas > {colored('Hapus Petugas', 'blue')}"
-			print(title)
+			judul_halaman = f"Halaman: Admin > Manajemen Petugas > {colored('Hapus Petugas', 'blue')}"
+			print(judul_halaman)
 
 			if pesan : print(pesan) # pesan tambahan, opsional
 
-			self.tampilkan_tabel_petugas(berhalaman=True, title=title)
+			self.tampilkan_tabel_petugas(berhalaman=True, judul_halaman=judul_halaman)
 			kode_petugas = input('\nPilih kode:\n> ')
 
 			if kode_petugas :
-				if self.data.search(kode_petugas, 'kode') :
+				if self.data.cari(kode_petugas, 'kode') :
 					# konfirmasi penghapusan
 					input(colored('Tekan untuk mengonfirmasi penghapusan...', 'yellow'))
 					print('Loading...')

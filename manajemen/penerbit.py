@@ -1,10 +1,11 @@
 from bcrypt import re
 from prettytable import PrettyTable
-from data_class import LinkedListOfDict
 from helper import bersihkan_console
 from termcolor import colored
+from asd.linked_list import LinkedList
 
 from manajemen.manajemen import Manajemen
+from model.penerbit import Penerbit
 
 class ManajemenPenerbit(Manajemen) :
 	"""
@@ -13,7 +14,7 @@ class ManajemenPenerbit(Manajemen) :
 
 	def __init__(self, app) :
 		self.app = app
-		self.data = LinkedListOfDict(softdelete=True)
+		self.data = LinkedList()
 	
 	def menu_manajemen_penerbit(self) :
 		try :
@@ -43,9 +44,9 @@ class ManajemenPenerbit(Manajemen) :
 		except KeyboardInterrupt or EOFError :
 			return self.app.role_admin.menu_admin()
 
-	def tampilkan_tabel_penerbit(self, berhalaman=False, title=None) :
+	def tampilkan_tabel_penerbit(self, berhalaman=False, judul_halaman=None) :
 		tabel = PrettyTable()
-		tabel.title = 'Data Penerbit'
+		tabel.judul_halaman = 'Data Penerbit'
 		tabel.field_names = ('No', 'Kode', 'Nama', 'Email', 'Nomor Telepon', 'Alamat')
 
 		if berhalaman :
@@ -53,41 +54,41 @@ class ManajemenPenerbit(Manajemen) :
 				queue=self.data.toqueue(),
 				tabel=tabel,
 				data_format=lambda data: self.format_data_tabel(data),
-				title=title
+				judul_halaman=judul_halaman
 			)
 		else :
 			penerbit = self.data.tolist()
 			for i in range(len(penerbit)) :
 				tabel.add_row((
 					(i + 1),
-					penerbit[i]['kode'],
-					penerbit[i]['nama'],
-					penerbit[i]['email'],
-					penerbit[i]['nomor_telepon'],
-					penerbit[i]['alamat']
+					penerbit[i].kode,
+					penerbit[i].nama,
+					penerbit[i].email,
+					penerbit[i].nomor_telepon,
+					penerbit[i].alamat
 				))
 
 			print(tabel)
 
 	def format_data_tabel(self, data) :
 		return (
-			data['kode'],
-			data['nama'],
-			data['email'],
-			data['nomor_telepon'],
-			data['alamat']
+			data.kode,
+			data.nama,
+			data.email,
+			data.nomor_telepon,
+			data.alamat
 		)
 
 	def tampilkan_penerbit(self, pesan=None) :
 		try :
 			bersihkan_console()
 
-			title = f"Halaman: Admin > Manajemen Penerbit > {colored('Tampilkan Penerbit', 'blue')}"
-			print(title)
+			judul_halaman = f"Halaman: Admin > Manajemen Penerbit > {colored('Tampilkan Penerbit', 'blue')}"
+			print(judul_halaman)
 
 			if pesan : print(pesan)
 
-			self.tampilkan_tabel_penerbit(berhalaman=True, title=title)
+			self.tampilkan_tabel_penerbit(berhalaman=True, judul_halaman=judul_halaman)
 
 			return self.menu_manajemen_penerbit()
 			
@@ -121,7 +122,7 @@ class ManajemenPenerbit(Manajemen) :
 
 			# review dan konfirmasi kembali data penerbit
 			tabel_review = PrettyTable()
-			tabel_review.title = 'Konfirmasi Data Penerbit'
+			tabel_review.judul_halaman = 'Konfirmasi Data Penerbit'
 			tabel_review.field_names = ('Data', 'Input')
 			tabel_review.align = 'l'
 			tabel_review.add_rows((
@@ -134,13 +135,15 @@ class ManajemenPenerbit(Manajemen) :
 			print(tabel_review)
 			input(colored('Tekan untuk konfirmasi...', 'yellow'))
 			print('Loading...')
+
+			penerbit = Penerbit()
+			penerbit.tetapkan_kode()
+			penerbit.nama = nama
+			penerbit.email = email
+			penerbit.nomor_telepon = nomor_telepon
+			penerbit.alamat = alamat
 			
-			self.data.insert({
-				'nama': nama,
-				'email': email,
-				'nomor_telepon': nomor_telepon,
-				'alamat': alamat
-			})
+			self.data.insert(penerbit)
 			self.app.role_admin.tersimpan = False
 
 			return self.tampilkan_penerbit(pesan=colored('Berhasil menambah penerbit.', 'green'))
@@ -152,23 +155,23 @@ class ManajemenPenerbit(Manajemen) :
 		try :
 			bersihkan_console()
 
-			title = f"Halaman: Admin > Manajemen Penerbit > {colored('Edit Penerbit', 'blue')}"
-			print(title)
+			judul_halaman = f"Halaman: Admin > Manajemen Penerbit > {colored('Edit Penerbit', 'blue')}"
+			print(judul_halaman)
 
 			if pesan : print(pesan) # pesan tambahan, opsional
 
-			self.tampilkan_tabel_penerbit(berhalaman=True, title=title)
+			self.tampilkan_tabel_penerbit(berhalaman=True, judul_halaman=judul_halaman)
 			kode_penerbit = input('\nPilih kode:\n> ')
 
 			if kode_penerbit :
 				if self.cek_penerbit(kode_penerbit) :
-					penerbit = self.data.search(kode_penerbit, 'kode')
+					penerbit = self.data.cari(kode_penerbit, 'kode')
 
 					# input data penerbit
-					nama          = input(f'Nama ({penerbit["nama"]}):\n> ') or penerbit["nama"]
-					email         = input(f'Email ({penerbit["email"]}):\n> ') or penerbit["email"]
-					nomor_telepon = input(f'Nomor Telepon ({penerbit["nomor_telepon"]}):\n> ') or penerbit["nomor_telepon"]
-					alamat        = input(f'Alamat ({penerbit["alamat"]}):\n> ') or penerbit["alamat"]
+					nama          = input(f'Nama ({penerbit.nama}):\n> ') or penerbit.nama
+					email         = input(f'Email ({penerbit.email}):\n> ') or penerbit.email
+					nomor_telepon = input(f'Nomor Telepon ({penerbit.nomor_telepon}):\n> ') or penerbit.nomor_telepon
+					alamat        = input(f'Alamat ({penerbit.alamat}):\n> ') or penerbit.alamat
 
 					# validasi input
 					aturan_email = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
@@ -184,7 +187,7 @@ class ManajemenPenerbit(Manajemen) :
 
 					# review dan konfirmasi kembali data penerbit
 					tabel_review = PrettyTable()
-					tabel_review.title = 'Konfirmasi Data Penerbit'
+					tabel_review.judul_halaman = 'Konfirmasi Data Penerbit'
 					tabel_review.field_names = ('Data', 'Input')
 					tabel_review.align = 'l'
 					tabel_review.add_rows((
@@ -198,12 +201,13 @@ class ManajemenPenerbit(Manajemen) :
 					input(colored('Tekan untuk konfirmasi...', 'yellow'))
 					print('Loading...')
 					
-					self.data.update({
-						'nama': nama,
-						'email': email,
-						'nomor_telepon': nomor_telepon,
-						'alamat': alamat
-					}, kode_penerbit, 'kode')
+					penerbit = self.data.cari(kode_penerbit, 'kode')
+					penerbit.nama = nama
+					penerbit.email = email
+					penerbit.nomor_telepon = nomor_telepon
+					penerbit.alamat = alamat
+					penerbit.tetapkan_status('ubah')
+
 					self.app.role_admin.tersimpan = False
 
 					return self.tampilkan_penerbit(pesan=colored('Berhasil mengedit penerbit.', 'green'))
@@ -217,18 +221,18 @@ class ManajemenPenerbit(Manajemen) :
 			return self.menu_manajemen_penerbit()
 
 	def cek_penerbit(self, kode) :
-		return self.data.search(kode, 'kode')
+		return self.data.cari(kode, 'kode')
 
 	def hapus_penerbit(self, pesan=None) :
 		try :
 			bersihkan_console()
 
-			title = f"Halaman: Admin > Manajemen Penerbit > {colored('Hapus Penerbit', 'blue')}"
-			print(title)
+			judul_halaman = f"Halaman: Admin > Manajemen Penerbit > {colored('Hapus Penerbit', 'blue')}"
+			print(judul_halaman)
 
 			if pesan : print(pesan) # pesan tambahan, opsional
 
-			self.tampilkan_tabel_penerbit(berhalaman=True, title=title)
+			self.tampilkan_tabel_penerbit(berhalaman=True, judul_halaman=judul_halaman)
 			kode_penerbit = input('\nPilih kode:\n> ')
 
 			if kode_penerbit :

@@ -1,21 +1,22 @@
-from datetime import datetime
 import sys
-from database import sql
+from datetime import datetime
 from helper import bersihkan_console
 from termcolor import colored
 
 from role.role import Role
+from model.pengguna import Pengguna
+from model.penerbit import Penerbit
+from model.pengadaan import Pengadaan, BukuPengadaan
 
 class RoleAdmin(Role) :
 	"""
 		Role admin.
 	"""
 
-	def __init__(self, app) :
+	def __init__(self, app) -> None :
 		self.app = app
 		self.tersimpan = False
-
-		self.ambil_database()
+		self.load_data_dari_database()
 
 	def menu_admin(self, pesan=None) :
 		try :
@@ -67,126 +68,155 @@ class RoleAdmin(Role) :
 		except Exception as e :
 			sys.exit(e)
 
-	def simpan_petugas(self) :
-		petugas = self.app.petugas.data
-		petugas_list = petugas.tolist(with_trashed=True)
-		for i in range(len(petugas_list)) :
-			petugas_data = petugas_list[i]
-			if petugas_data['status_data'] == 'baru' :
+	def simpan_petugas(self) -> None :
+		for _, petugas in enumerate(self.app.petugas.data.tolist(semua=True)) :
+			if petugas.status_data == 'baru' :
 				query = 'INSERT INTO pengguna VALUES (%s, %s, %s, %s, %s, %s, %s, %s);'
 				data = (
-					petugas_data['kode'],
-					petugas_data['nama'],
-					petugas_data['email'],
-					petugas_data['password'],
-					petugas_data['nomor_telepon'],
-					petugas_data['alamat'],
+					petugas.kode,
+					petugas.nama,
+					petugas.email,
+					petugas.password,
+					petugas.nomor_telepon,
+					petugas.alamat,
 					'petugas',
-					petugas_data['tanggal_dibuat'],
+					petugas.tanggal_dibuat,
 				)
-				sql(query=query, data=data)
-			elif petugas_data['status_data'] == 'hapus' :
+				self.app.db.sql(query=query, data=data)
+			elif petugas.status_data == 'hapus' :
 				query = 'DELETE FROM pengguna WHERE kode = %s;'
-				sql(query=query, data=(petugas_data['kode'],))
+				self.app.db.sql(query=query, data=(petugas.kode,))
 
 		self.app.petugas.data.tetapkan_sebagai_tersimpan()
 
-	def simpan_penerbit(self) :
-		penerbit = self.app.penerbit.data
-		penerbit_list = penerbit.tolist(with_trashed=True)
-		for i in range(len(penerbit_list)) :
-			penerbit_data = penerbit_list[i]
-			if penerbit_data['status_data'] == 'baru' :
+	def simpan_penerbit(self) -> None :
+		for _, penerbit in enumerate(self.app.penerbit.data.tolist(semua=True)) :
+			if penerbit.status_data == 'baru' :
 				query = 'INSERT INTO penerbit VALUES (%s, %s, %s, %s, %s);'
 				data = (
-					penerbit_data['kode'],
-					penerbit_data['nama'],
-					penerbit_data['email'],
-					penerbit_data['nomor_telepon'],
-					penerbit_data['alamat'],
+					penerbit.kode,
+					penerbit.nama,
+					penerbit.email,
+					penerbit.nomor_telepon,
+					penerbit.alamat,
 				)
-				sql(query=query, data=data)
-			elif penerbit_data['status_data'] == 'ubah' :
+				self.app.db.sql(query=query, data=data)
+			elif penerbit.status_data == 'ubah' :
 				query = (
 					'UPDATE penerbit SET nama = %s, email = %s, nomor_telepon = %s, alamat = %s '
 					'WHERE kode = %s;'
 				)
 				data = (
-					penerbit_data['nama'],
-					penerbit_data['email'],
-					penerbit_data['nomor_telepon'],
-					penerbit_data['alamat'],
-					penerbit_data['kode'],
+					penerbit.nama,
+					penerbit.email,
+					penerbit.nomor_telepon,
+					penerbit.alamat,
+					penerbit.kode,
 				)
-				sql(query=query, data=data)
-			elif penerbit_data['status_data'] == 'hapus' :
+				self.app.db.sql(query=query, data=data)
+			elif penerbit.status_data == 'hapus' :
 				query = 'DELETE FROM penerbit WHERE kode = %s;'
-				sql(query=query, data=(penerbit_data['kode'],))
+				self.app.db.sql(query=query, data=(penerbit.kode,))
 
 		self.app.penerbit.data.tetapkan_sebagai_tersimpan()
 	
-	def simpan_pengadaan(self) :
-		pengadaan = self.app.pengadaan.data
-		pengadaan_list = pengadaan.tolist(with_trashed=True)
-		
-		for i in range(len(pengadaan_list)) :
-			pengadaan_data = pengadaan_list[i]
-			
-			if pengadaan_data['status_data'] == 'baru' :
+	def simpan_pengadaan(self) -> None :
+		for _, pengadaan in enumerate(self.app.pengadaan.data.tolist(semua=True)) :
+			print(pengadaan.status_data)
+			if pengadaan.status_data == 'baru' :
 				query = 'INSERT INTO pengadaan VALUES (%s, %s, %s);'
 				data = (
-					pengadaan_data['kode'],
-					pengadaan_data['kode_penerbit'],
-					datetime.strptime(pengadaan_data['tanggal'], '%d-%m-%Y').strftime('%Y-%m-%d')
+					pengadaan.kode,
+					pengadaan.kode_penerbit,
+					datetime.strptime(pengadaan.tanggal, '%d-%m-%Y').strftime('%Y-%m-%d')
 				)
-				sql(query=query, data=data)
+				self.app.db.sql(query=query, data=data)
 
-				detail_pengadaan = pengadaan_data['detail_pengadaan']
-				for j in range(len(detail_pengadaan)) :
-					detail_pengadaan_data = detail_pengadaan[j]
-					query = 'INSERT INTO detail_pengadaan VALUES (null, %s, %s, %s, %s);'
+				buku_pengadaan = pengadaan.buku.tolist()
+				for _, buku_pengadaan_data in enumerate(buku_pengadaan) :
+					query = 'INSERT INTO buku_pengadaan VALUES (null, %s, %s, %s, %s);'
 					data = (
-						pengadaan_data['kode'],
-						detail_pengadaan_data['isbn'],
-						detail_pengadaan_data['harga'],
-						detail_pengadaan_data['jumlah'],
+						pengadaan.kode,
+						buku_pengadaan_data.isbn,
+						buku_pengadaan_data.harga,
+						buku_pengadaan_data.jumlah,
 					)
 
-					buku = self.app.buku.data.search(detail_pengadaan_data['isbn'], 'isbn')
+					buku = self.app.buku.data.cari(buku_pengadaan_data.isbn, 'isbn')
 
 					# cek apakah buku sudah ada
-					buku_lama = sql(query='SELECT jumlah FROM buku WHERE isbn = %s;', data=(buku['isbn'],), hasil=lambda cursor: cursor.fetchone())
+					buku_lama = self.app.db.sql(query='SELECT jumlah FROM buku WHERE isbn = %s;', data=(buku.isbn,), hasil=lambda cursor: cursor.fetchone())
 					if buku_lama is not None :
-						sql(
-							query='UPDATE buku SET jumlah = %s WHERE isbn = %s;',
-							data=(int(buku['jumlah']), buku['isbn'])
-						)
+						self.app.db.sql(query='UPDATE buku SET jumlah = %s WHERE isbn = %s;', data=(int(buku.jumlah), buku.isbn))
 					else :
-						sql(
-							query='INSERT INTO buku VALUES (%s, %s, %s, %s, %s, %s, %s);',
-							data=(buku['kode'], buku['isbn'], '', '', '', 0, buku['jumlah'])
-						)
+						self.app.db.sql(query='INSERT INTO buku VALUES (%s, %s, %s, %s, %s, %s, %s);', data=(buku.kode, buku.isbn, '', '', '', 0, buku.jumlah))
 
-					sql(query=query, data=data)
+					self.app.db.sql(query=query, data=data)
 			
-			elif pengadaan_data['status_data'] == 'hapus' :
+			elif pengadaan.status_data == 'hapus' :
+				print(pengadaan.status_data)
 				query = 'DELETE FROM pengadaan WHERE kode = %s;'
-				sql(query=query, data=(pengadaan_data['kode'],))
+				self.app.db.sql(query=query, data=(pengadaan.kode,))
 
 		self.app.pengadaan.data.tetapkan_sebagai_tersimpan()
 
-	def ambil_database(self) :
-		petugas = sql(query="SELECT * FROM pengguna WHERE role = 'petugas'", hasil=lambda cursor: cursor.fetchall())
-		penerbit = sql(query="SELECT * FROM penerbit", hasil=lambda cursor: cursor.fetchall())
-		pengadaan = sql(query="SELECT * FROM pengadaan", hasil=lambda cursor: cursor.fetchall())
-
-		self.ambil(self.app.petugas, petugas)
-		self.ambil(self.app.penerbit, penerbit)
-		self.ambil(self.app.pengadaan, pengadaan, self.ambil_detail_pengadaan)
-
+	def load_data_dari_database(self) -> None :
+		self.load_data_petugas_dari_database()
+		self.load_data_penerbit_dari_database()
+		self.load_data_pengadaan_dari_database()
 		self.tersimpan = True
 
-	def ambil_detail_pengadaan(self, data) :
-		kode_pengadaan = data['kode']
-		pengadaan = sql(query="SELECT * FROM detail_pengadaan WHERE kode_pengadaan = %s", data=(kode_pengadaan,), hasil=lambda cursor: cursor.fetchall())
-		data['detail_pengadaan'] = pengadaan
+	def load_data_petugas_dari_database(self) -> None :
+		petugas = self.app.db.sql(query="SELECT * FROM pengguna WHERE role = 'petugas'", hasil=lambda cursor: cursor.fetchall())
+		for _, _petugas in enumerate(petugas) :
+			petugas_model = Pengguna()
+			petugas_model.tetapkan_kode(_petugas['kode'])
+			petugas_model.nama = _petugas['nama']
+			petugas_model.email = _petugas['email']
+			petugas_model.password = _petugas['password']
+			petugas_model.nomor_telepon = _petugas['nomor_telepon']
+			petugas_model.alamat = _petugas['alamat']
+			petugas_model.role = _petugas['role']
+			petugas_model.tanggal_dibuat = _petugas['tanggal_dibuat']
+			petugas_model.status_data = 'lama'
+
+			self.app.petugas.data.insert(petugas_model)
+
+	def load_data_penerbit_dari_database(self) -> None :
+		penerbit = self.app.db.sql(query="SELECT * FROM penerbit", hasil=lambda cursor: cursor.fetchall())
+		for _, _penerbit in enumerate(penerbit) :
+			penerbit_model = Penerbit()
+			penerbit_model.tetapkan_kode(_penerbit['kode'])
+			penerbit_model.nama = _penerbit['nama']
+			penerbit_model.email = _penerbit['email']
+			penerbit_model.nomor_telepon = _penerbit['nomor_telepon']
+			penerbit_model.alamat = _penerbit['alamat']
+			penerbit_model.status_data = 'lama'
+
+			self.app.penerbit.data.insert(penerbit_model)
+	
+	def load_data_pengadaan_dari_database(self) -> None :
+		pengadaan = self.app.db.sql(query="SELECT * FROM pengadaan", hasil=lambda cursor: cursor.fetchall())
+		for _, _pengadaan in enumerate(pengadaan) :
+			pengadaan_model = Pengadaan()
+			pengadaan_model.tetapkan_kode(_pengadaan['kode'])
+			pengadaan_model.kode_penerbit = _pengadaan['kode_penerbit']
+			pengadaan_model.tanggal = _pengadaan['tanggal']
+			pengadaan_model.status_data = 'lama'
+
+			buku_pengadaan = self.app.db.sql(
+				query="SELECT * FROM buku_pengadaan WHERE kode_pengadaan = %s;",
+				data=(_pengadaan['kode'],),
+				hasil=lambda cursor: cursor.fetchall()
+			)
+			for _, _buku_pengadaan in enumerate(buku_pengadaan) :
+				buku_pengadaan_model = BukuPengadaan()
+				buku_pengadaan_model.kode_pengadaan = _pengadaan['kode']
+				buku_pengadaan_model.isbn = _buku_pengadaan['isbn']
+				buku_pengadaan_model.jumlah = _buku_pengadaan['jumlah']
+				buku_pengadaan_model.harga = _buku_pengadaan['harga']
+				buku_pengadaan_model.status_data = 'lama'
+
+				pengadaan_model.tambah_buku(buku_pengadaan_model)
+
+			self.app.pengadaan.data.insert(pengadaan_model)
