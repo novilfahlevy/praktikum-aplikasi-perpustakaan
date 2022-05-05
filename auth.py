@@ -26,10 +26,10 @@ class Auth :
 		f.write(data)
 		f.close()
 
-	def ambil_session(self, ke_json=False) :
+	def ambil_session(self, dict=False) :
 		if self.cek_session() :
 			f = open('session', 'r')
-			data = json.loads(f.read()) if ke_json else f.read() 
+			data = json.loads(f.read()) if dict else f.read() 
 			f.close()
 			return data
 

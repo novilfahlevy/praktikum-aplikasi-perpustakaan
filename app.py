@@ -39,7 +39,7 @@ class App :
 
 	def main(self, force_close=False) :
 		if force_close is not True :
-			session = self.auth.ambil_session(ke_json=True)
+			session = self.auth.ambil_session(dict=True)
 			if session is not None :
 				self.auth.session = session
 				return self.menu(self.auth.session['role'])
