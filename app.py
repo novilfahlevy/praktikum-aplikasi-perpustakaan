@@ -17,10 +17,10 @@ class App :
 		Class utama yang dijalankan.
 	"""
 
-	def __init__(self, perintah_cli):
+	def __init__(self, parameter_cli):
 		# masukan informasi terkait database sesuai dengan punya anda
 		self.db = Database()
-		if 'buat-tabel' in perintah_cli :
+		if 'buat-tabel' in parameter_cli :
 			self.db.buat_tabel(seed=True, truncate=True)
 
 		self.auth = Auth(self)
