@@ -1,9 +1,10 @@
 from prettytable import PrettyTable
-from data_class import LinkedListOfDict
 from helper import bersihkan_console
 from termcolor import colored
+from asd.linked_list import LinkedList
 
 from manajemen.manajemen import Manajemen
+from model.buku import Buku
 
 class ManajemenBuku(Manajemen) :
 	"""
@@ -12,7 +13,7 @@ class ManajemenBuku(Manajemen) :
 
 	def __init__(self, app) :
 		self.app = app
-		self.data = LinkedListOfDict(softdelete=True)
+		self.data = LinkedList()
 
 	def menu_manajemen_buku(self) :
 		try :
@@ -42,9 +43,9 @@ class ManajemenBuku(Manajemen) :
 		except KeyboardInterrupt or EOFError :
 			return self.app.role_petugas.menu_petugas()
 
-	def tampilkan_tabel_buku(self, berhalaman=False, title=None) :
+	def tampilkan_tabel_buku(self, berhalaman=False, judul_halaman=None) :
 		tabel = PrettyTable()
-		tabel.title = 'Data Buku'
+		tabel.judul_halaman = 'Data Buku'
 		tabel.field_names = ('No', 'Kode', 'ISBN', 'Judul', 'Penulis', 'Genre', 'Jumlah Halaman', 'Jumlah')
 
 		if berhalaman :
@@ -52,44 +53,44 @@ class ManajemenBuku(Manajemen) :
 				queue=self.data.toqueue(),
 				tabel=tabel,
 				data_format=lambda data: self.format_data_tabel(data),
-				title=title
+				judul_halaman=judul_halaman
 			)
 		else :
 			buku = self.data.tolist()
 			for i in range(len(buku)) :
 				tabel.add_row((
 					(i + 1),
-					buku[i]['kode'],
-					buku[i]['isbn'],
-					buku[i]['judul'],
-					buku[i]['penulis'],
-					buku[i]['genre'],
-					buku[i]['jumlah_halaman'],
-					buku[i]['jumlah'],
+					buku[i].kode,
+					buku[i].isbn,
+					buku[i].judul,
+					buku[i].penulis,
+					buku[i].genre,
+					buku[i].jumlah_halaman,
+					buku[i].jumlah,
 				))
 
 			print(tabel)
 
 	def format_data_tabel(self, data) :
 		return (
-			data['kode'],
-			data['isbn'],
-			data['judul'],
-			data['penulis'],
-			data['genre'],
-			data['jumlah_halaman'],
-			data['jumlah'],
+			data.kode,
+			data.isbn,
+			data.judul,
+			data.penulis,
+			data.genre,
+			data.jumlah_halaman,
+			data.jumlah,
 		)
 
 	def tampilkan_buku(self, pesan=None) :
 		try :
-			title = f"Halaman: Petugas > Manajemen Buku > {colored('Tampilkan Buku', 'blue')}"
+			judul_halaman = f"Halaman: Petugas > Manajemen Buku > {colored('Tampilkan Buku', 'blue')}"
 			bersihkan_console()
-			print(title)
+			print(judul_halaman)
 
 			if pesan : print(pesan)
 
-			self.tampilkan_tabel_buku(berhalaman=True, title=title)
+			self.tampilkan_tabel_buku(berhalaman=True, judul_halaman=judul_halaman)
 
 			return self.menu_manajemen_buku()
 			
@@ -112,7 +113,7 @@ class ManajemenBuku(Manajemen) :
 
 			# validasi input
 			if not isbn : return self.tambah_buku(colored('ISBN tidak boleh kosong.', 'red'))
-			if self.data.search(isbn, 'isbn') is not None : return self.tambah_buku(colored('ISBN sudah tersedia.', 'red'))
+			if self.data.cari(isbn, 'isbn') is not None : return self.tambah_buku(colored('ISBN sudah tersedia.', 'red'))
 
 			if not judul : return self.tambah_buku(colored('Judul tidak boleh kosong.', 'red'))
 			if not penulis : return self.tambah_buku(colored('Penulis tidak boleh kosong.', 'red'))
@@ -125,7 +126,7 @@ class ManajemenBuku(Manajemen) :
 
 			# review dan konfirmasi kembali data buku
 			tabel_review = PrettyTable()
-			tabel_review.title = 'Konfirmasi Data Buku'
+			tabel_review.judul_halaman = 'Konfirmasi Data Buku'
 			tabel_review.field_names = ('Data', 'Input')
 			tabel_review.align = 'l'
 			tabel_review.add_rows((
@@ -139,15 +140,17 @@ class ManajemenBuku(Manajemen) :
 			print(tabel_review)
 			input(colored('Tekan untuk konfirmasi...', 'yellow'))
 			print('Loading...')
+
+			buku = Buku()
+			buku.tetapkan_kode()
+			buku.isbn = isbn
+			buku.judul = judul
+			buku.penulis = penulis
+			buku.genre = genre
+			buku.jumlah_halaman = int(jumlah_halaman)
+			buku.jumlah = 0
 			
-			self.data.insert({
-				'isbn': isbn,
-				'judul': judul,
-				'penulis': penulis,
-				'genre': genre,
-				'jumlah_halaman': int(jumlah_halaman),
-				'jumlah': 0,
-			})
+			self.data.insert(buku)
 			self.app.role_petugas.tersimpan = False
 
 			return self.tampilkan_buku(pesan=colored('Berhasil menambah buku.', 'green'))
@@ -159,24 +162,24 @@ class ManajemenBuku(Manajemen) :
 		try :
 			bersihkan_console()
 
-			title = f"Halaman: Petugas > Manajemen Buku > {colored('Edit Buku', 'blue')}"
-			print(title)
+			judul_halaman = f"Halaman: Petugas > Manajemen Buku > {colored('Edit Buku', 'blue')}"
+			print(judul_halaman)
 
 			if pesan : print(pesan) # pesan tambahan, opsional
 
-			self.tampilkan_tabel_buku(berhalaman=True, title=title)
+			self.tampilkan_tabel_buku(berhalaman=True, judul_halaman=judul_halaman)
 			kode_buku = input('\nPilih kode buku:\n> ')
 
 			if kode_buku :
-				buku = self.data.search(kode_buku, 'kode')
+				buku = self.data.cari(kode_buku, 'kode')
 				if buku is not None :
 					print()
 					# input data buku
-					isbn           = input('ISBN           : ') or buku['isbn']
-					judul          = input('Judul          : ') or buku['judul']
-					penulis   		 = input('Penulis        : ') or buku['penulis']
-					genre          = input('Genre          : ') or buku['genre']
-					jumlah_halaman = input('Jumlah halaman : ') or buku['jumlah_halaman']
+					isbn           = input('ISBN ({}) :\n> '.format(buku.isbn)) or buku.isbn
+					judul          = input('Judul ({}) :\n> '.format(buku.judul)) or buku.judul
+					penulis   		 = input('Penulis ({}) :\n> '.format(buku.penulis)) or buku.penulis
+					genre          = input('Genre ({}) :\n> '.format(buku.genre)) or buku.genre
+					jumlah_halaman = input('Jumlah halaman ({}) :\n> '.format(buku.jumlah_halaman)) or buku.jumlah_halaman
 
 					# validasi input
 					if not isbn : return self.edit_buku(colored('ISBN tidak boleh kosong.', 'red'))
@@ -191,7 +194,7 @@ class ManajemenBuku(Manajemen) :
 
 					# review dan konfirmasi kembali data buku
 					tabel_review = PrettyTable()
-					tabel_review.title = 'Konfirmasi Data Buku'
+					tabel_review.judul_halaman = 'Konfirmasi Data Buku'
 					tabel_review.field_names = ('Data', 'Input')
 					tabel_review.align = 'l'
 					tabel_review.add_rows((
@@ -205,14 +208,15 @@ class ManajemenBuku(Manajemen) :
 					print(tabel_review)
 					input(colored('Tekan untuk konfirmasi...', 'yellow'))
 					print('Loading...')
+
+					buku = self.data.cari(kode_buku, 'kode')
+					buku.isbn = isbn
+					buku.judul = judul
+					buku.penulis = penulis
+					buku.genre = genre
+					buku.jumlah_halaman = int(jumlah_halaman)
+					buku.tetapkan_status('ubah')
 					
-					self.data.update({
-						'isbn': isbn,
-						'judul': judul,
-						'penulis': penulis,
-						'genre': genre,
-						'jumlah_halaman': int(jumlah_halaman),
-					}, kode_buku, 'kode')
 					self.app.role_petugas.tersimpan = False
 
 					return self.tampilkan_buku(pesan=colored('Berhasil mengedit buku.', 'green'))
@@ -226,16 +230,16 @@ class ManajemenBuku(Manajemen) :
 		try :
 			bersihkan_console()
 
-			title = f"Halaman: Petugas > Manajemen Buku > {colored('Hapus Buku', 'blue')}"
-			print(title)
+			judul_halaman = f"Halaman: Petugas > Manajemen Buku > {colored('Hapus Buku', 'blue')}"
+			print(judul_halaman)
 
 			if pesan : print(pesan) # pesan tambahan, opsional
 
-			self.tampilkan_tabel_buku(berhalaman=True, title=title)
+			self.tampilkan_tabel_buku(berhalaman=True, judul_halaman=judul_halaman)
 			kode_buku = input('\nPilih kode:\n> ')
 
 			if kode_buku :
-				if self.data.search(kode_buku, 'kode') :
+				if self.data.cari(kode_buku, 'kode') :
 					# konfirmasi penghapusan
 					input(colored('Tekan untuk mengonfirmasi penghapusan...', 'yellow'))
 					print('Loading...')

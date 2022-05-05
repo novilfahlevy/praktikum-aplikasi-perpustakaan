@@ -1,4 +1,6 @@
 from auth import Auth
+from database import Database
+
 from role.admin import RoleAdmin
 from role.petugas import RolePetugas
 
@@ -15,7 +17,12 @@ class App :
 		Class utama yang dijalankan.
 	"""
 
-	def __init__(self):
+	def __init__(self, perintah_cli):
+		# masukan informasi terkait database sesuai dengan punya anda
+		self.db = Database()
+		if 'buat-tabel' in perintah_cli :
+			self.db.buat_tabel(seed=True, truncate=True)
+
 		self.auth = Auth(self)
 
 		self.petugas = ManajemenPetugas(self)

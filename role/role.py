@@ -1,9 +1,7 @@
 import json
-from database import sql
+import pwinput
 from helper import bersihkan_console, hash_password
 from termcolor import colored
-import pwinput
-
 
 class Role :
 	"""
@@ -18,13 +16,13 @@ class Role :
 			if pesan is not None : print(pesan)
 
 			profil = self.app.auth.session
-			nama     			= input(f'Nama ({profil["nama"]}) :\n> ') or profil['nama']
-			email    			= input(f'Email ({profil["email"]}) :\n> ') or profil['email']
-			nomor_telepon = input(f'Nomor Telepon ({profil["nomor_telepon"]}) :\n> ') or profil['nomor_telepon']
-			alamat    		= input(f'Alamat ({profil["alamat"]}) :\n> ') or profil['alamat']
+			nama     			= input(f'Nama ({profil.nama}) :\n> ') or profil['nama']
+			email    			= input(f'Email ({profil.email}) :\n> ') or profil['email']
+			nomor_telepon = input(f'Nomor Telepon ({profil.nomor_telepon}) :\n> ') or profil['nomor_telepon']
+			alamat    		= input(f'Alamat ({profil.alamat}) :\n> ') or profil['alamat']
 			password 			= pwinput.pwinput(prompt='Password (opsional) :\n> ')
 
-			ganti_profil_berhasil = sql(
+			ganti_profil_berhasil = self.app.db.sql(
 				query='UPDATE pengguna SET nama = %s, email = %s, nomor_telepon = %s, alamat = %s WHERE kode = %s;',
 				data=(nama, email, nomor_telepon, alamat, profil['kode']),
 				hasil=lambda cursor: cursor.rowcount
@@ -34,7 +32,7 @@ class Role :
 				konfirmasi_password = pwinput.pwinput(prompt='Konfirmasi password :\n> ')
 				if password == konfirmasi_password :
 					password = hash_password(password)
-					sql(query='UPDATE pengguna SET password = %s WHERE kode = %s;', data=(password, profil['kode']), hasil=lambda cursor: cursor.rowcount)
+					self.app.db.sql(query='UPDATE pengguna SET password = %s WHERE kode = %s;', data=(password, profil['kode']), hasil=lambda cursor: cursor.rowcount)
 					return self.app.auth.logout()
 				else :
 					return self.edit_profil(pesan=colored('Password tidak cocok.', 'red'))
@@ -59,10 +57,3 @@ class Role :
 			if self.app.auth.session['role'] == 'admin' :
 				return self.menu_admin()
 			return self.menu_petugas()
-
-	def ambil(self, linkedlist, list_data, nested=None) :
-		for i in range(len(list_data)) :
-			data = {}
-			for j in list_data[i] : data[j] = list_data[i][j]
-			if nested is not None : nested(data)
-			linkedlist.data.insert(data, status='lama')

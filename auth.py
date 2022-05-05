@@ -5,7 +5,6 @@ import bcrypt
 from termcolor import colored
 from os import path, stat
 from helper import bersihkan_console
-from database import sql
 
 class Auth :
 	"""
@@ -50,7 +49,7 @@ class Auth :
 			email = input('Email    : ')
 			password = pwinput.pwinput(prompt='Password : ')
 
-			akun = sql(
+			akun = self.app.db.sql(
 				query='SELECT * FROM pengguna WHERE email = %s LIMIT 1;',
 				data=(email,),
 				hasil=lambda cursor: cursor.fetchone()
