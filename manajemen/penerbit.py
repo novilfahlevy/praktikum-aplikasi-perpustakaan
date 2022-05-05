@@ -57,15 +57,14 @@ class ManajemenPenerbit(Manajemen) :
 				judul_halaman=judul_halaman
 			)
 		else :
-			penerbit = self.data.tolist()
-			for i in range(len(penerbit)) :
+			for i, penerbit in enumerate(self.data.tolist()) :
 				tabel.add_row((
 					(i + 1),
-					penerbit[i].kode,
-					penerbit[i].nama,
-					penerbit[i].email,
-					penerbit[i].nomor_telepon,
-					penerbit[i].alamat
+					penerbit.kode,
+					penerbit.nama,
+					penerbit.email,
+					penerbit.nomor_telepon,
+					penerbit.alamat
 				))
 
 			print(tabel)

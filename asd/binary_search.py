@@ -1,4 +1,4 @@
-def binary_search(lys, val, key) :
+def binary_search(lys, val, atribut) :
   """
     Pencarian untuk list of dict.
   """
@@ -9,10 +9,10 @@ def binary_search(lys, val, key) :
   while (first <= last) and (row == -1) :
     mid = (first + last) // 2
 
-    if lys[mid][key] == val :
+    if getattr(lys[mid], atribut) == val :
       row = mid
     else :
-      if val < lys[mid][key] :
+      if val < getattr(lys[mid], atribut) :
         last = mid - 1
       else:
         first = mid + 1

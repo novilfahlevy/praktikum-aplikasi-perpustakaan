@@ -15,8 +15,8 @@ class Pengadaan(Model) :
     total = 0
     node = self.buku.head
     while node is not None :
-      total += node.data.harga
-      node = node.text
+      total += (node.data.harga * node.data.jumlah)
+      node = node.next
 
     if konversi :
       return currency(total)

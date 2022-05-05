@@ -55,14 +55,13 @@ class ManajemenPengadaan(Manajemen) :
 				judul_halaman=judul_halaman
 			)
 		else :
-			pengadaan = self.data.tolist(sort=lambda l, r: str(l.tanggal) > str(r.tanggal))
-			for i in range(len(pengadaan)) :
-				penerbit = self.app.penerbit.data.cari(pengadaan[i].kode_penerbit, 'kode')
+			for i, pengadaan in enumerate(self.data.tolist(sort=lambda l, r: str(l.tanggal) > str(r.tanggal))) :
+				penerbit = self.app.penerbit.data.cari(pengadaan.kode_penerbit, 'kode')
 				tabel.add_row((
 					(i + 1),
-					pengadaan[i].kode,
+					pengadaan.kode,
 					penerbit.nama,
-					konversi_format(pengadaan[i].tanggal, "%Y-%m-%d", "%d-%m-%Y"),
+					konversi_format(pengadaan.tanggal, "%Y-%m-%d", "%d-%m-%Y"),
 				))
 
 			print(tabel)
@@ -115,24 +114,17 @@ class ManajemenPengadaan(Manajemen) :
 			tabel.judul_halaman = f'Pengadaan Tanggal {pengadaan.tanggal} dari {penerbit.nama}'
 			tabel.field_names = ('No', 'ISBN', 'Harga', 'Jumlah', 'Sub Total')
 
-			buku_pengadaan = pengadaan.buku.tolist()
-			for i in range(len(buku_pengadaan)) :
-				isbn = buku_pengadaan[i].isbn
-				harga = buku_pengadaan[i].harga
-				jumlah = buku_pengadaan[i].jumlah
-				
+			for i, buku_pengadaan in enumerate(pengadaan.buku.tolist()) :
 				tabel.add_row((
 					(i + 1),
-					isbn,
-					currency(harga),
-					jumlah,
-					currency(harga * jumlah)
+					buku_pengadaan.isbn,
+					currency(buku_pengadaan.harga),
+					buku_pengadaan.jumlah,
+					buku_pengadaan.total_harga(konversi=True)
 				))
 
 			print(tabel)
-
-			total_harga = sum(map(lambda p: p.jumlah * p.harga, buku_pengadaan))
-			print(f'Total Harga {currency(total_harga)}')
+			print(f'Total Harga {pengadaan.total_harga(konversi=True)}')
 
 			input('...')
 
@@ -231,12 +223,11 @@ class ManajemenPengadaan(Manajemen) :
 					buku.isbn,
 					currency(buku.harga),
 					buku.jumlah,
-					currency(buku.harga * buku.jumlah)
+					buku.total_harga(konversi=True)
 				))
 
-			total_harga = sum(map(lambda p: p.jumlah * p.harga, buku_pengadaan))
 			print(tabel_review)
-			print(f'Total Harga {currency(total_harga)}')
+			print(f'Total Harga {pengadaan.total_harga(konversi=True)}')
 
 			input(colored('\nTekan untuk mengonfirmasi pengadaan...', 'yellow'))
 

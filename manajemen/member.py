@@ -58,15 +58,14 @@ class ManajemenMember(Manajemen) :
 				judul_halaman=judul_halaman
 			)
 		else :
-			member = self.data.tolist()
-			for i in range(len(member)) :
+			for i, member in enumerate(self.data.tolist()) :
 				tabel.add_row((
 					(i + 1),
-					member[i].kode,
-					member[i].nama,
-					member[i].email,
-					member[i].nomor_telepon,
-					member[i].alamat
+					member.kode,
+					member.nama,
+					member.email,
+					member.nomor_telepon,
+					member.alamat
 				))
 
 			print(tabel)

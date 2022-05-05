@@ -56,17 +56,16 @@ class ManajemenBuku(Manajemen) :
 				judul_halaman=judul_halaman
 			)
 		else :
-			buku = self.data.tolist()
-			for i in range(len(buku)) :
+			for i, buku in enumerate(self.data.tolist()) :
 				tabel.add_row((
 					(i + 1),
-					buku[i].kode,
-					buku[i].isbn,
-					buku[i].judul,
-					buku[i].penulis,
-					buku[i].genre,
-					buku[i].jumlah_halaman,
-					buku[i].jumlah,
+					buku.kode,
+					buku.isbn,
+					buku.judul,
+					buku.penulis,
+					buku.genre,
+					buku.jumlah_halaman,
+					buku.jumlah,
 				))
 
 			print(tabel)

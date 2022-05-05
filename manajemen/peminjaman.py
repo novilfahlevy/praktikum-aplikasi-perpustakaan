@@ -63,20 +63,20 @@ class ManajemenPeminjaman(Manajemen) :
 				judul_halaman=judul_halaman
 			)
 		else :
-			for i in range(len(peminjaman)) :
-				petugas = self.app.petugas.data.cari(peminjaman[i].kode_petugas, 'kode')
-				member  = self.app.member.data.cari(peminjaman[i].kode_member, 'kode')
-				buku    = self.app.buku.data.cari(peminjaman[i].kode_buku, 'kode')
+			for i, _peminjaman in enumerate(peminjaman) :
+				petugas = self.app.petugas.data.cari(_peminjaman.kode_petugas, 'kode')
+				member  = self.app.member.data.cari(_peminjaman.kode_member, 'kode')
+				buku    = self.app.buku.data.cari(_peminjaman.kode_buku, 'kode')
 
 				tabel.add_row((
 					(i + 1),
-					peminjaman[i].kode,
+					_peminjaman.kode,
 					petugas.nama,
 					member.nama,
 					buku.isbn,
-					konversi_format(peminjaman[i].tanggal_mulai, '%Y-%m-%d', '%d-%m-%Y'),
-					konversi_format(peminjaman[i].tanggal_selesai, '%Y-%m-%d', '%d-%m-%Y') if peminjaman[i].tanggal_selesai else '-',
-					konversi_format(peminjaman[i].tenggat, '%Y-%m-%d', '%d-%m-%Y'),
+					konversi_format(_peminjaman.tanggal_mulai, '%Y-%m-%d', '%d-%m-%Y'),
+					konversi_format(_peminjaman.tanggal_selesai, '%Y-%m-%d', '%d-%m-%Y') if _peminjaman.tanggal_selesai else '-',
+					konversi_format(_peminjaman.tenggat, '%Y-%m-%d', '%d-%m-%Y'),
 					peminjaman.jumlah_denda(konversi=True),
 				))
 

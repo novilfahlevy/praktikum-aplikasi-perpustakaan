@@ -55,15 +55,14 @@ class ManajemenPetugas(Manajemen) :
 				judul_halaman=judul_halaman
 			)
 		else :
-			petugas = self.data.tolist()
-			for i in range(len(petugas)) :
+			for i, petugas in enumerate(self.data.tolist()) :
 				tabel.add_row((
 					(i + 1),
-					petugas[i].kode,
-					petugas[i].nama,
-					petugas[i].email,
-					petugas[i].nomor_telepon,
-					petugas[i].alamat
+					petugas.kode,
+					petugas.nama,
+					petugas.email,
+					petugas.nomor_telepon,
+					petugas.alamat
 				))
 
 			print(tabel)
