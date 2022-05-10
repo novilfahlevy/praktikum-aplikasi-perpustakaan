@@ -71,9 +71,9 @@ class ManajemenPeminjaman(Manajemen) :
 				tabel.add_row((
 					(i + 1),
 					_peminjaman.kode,
-					petugas.nama,
-					member.nama,
-					buku.isbn,
+					petugas.nama if petugas is not None else '-',
+					member.nama if member is not None else '-',
+					buku.isbn if buku is not None else '-',
 					konversi_format(_peminjaman.tanggal_mulai, '%Y-%m-%d', '%d-%m-%Y'),
 					konversi_format(_peminjaman.tanggal_selesai, '%Y-%m-%d', '%d-%m-%Y') if _peminjaman.tanggal_selesai else '-',
 					konversi_format(_peminjaman.tenggat, '%Y-%m-%d', '%d-%m-%Y'),
@@ -89,9 +89,9 @@ class ManajemenPeminjaman(Manajemen) :
 		
 		return (
 			data.kode,
-			petugas.nama,
-			member.nama,
-			buku.isbn,
+			petugas.nama if petugas is not None else '-',
+			member.nama if member is not None else '-',
+			buku.isbn if buku is not None else '-',
 			konversi_format(data.tanggal_mulai, '%Y-%m-%d', '%d-%m-%Y'),
 			konversi_format(data.tanggal_selesai, '%Y-%m-%d', '%d-%m-%Y') if data.tanggal_selesai else '-',
 			konversi_format(data.tenggat, '%Y-%m-%d', '%d-%m-%Y'),

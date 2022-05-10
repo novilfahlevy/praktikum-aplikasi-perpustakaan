@@ -60,7 +60,7 @@ class ManajemenPengadaan(Manajemen) :
 				tabel.add_row((
 					(i + 1),
 					pengadaan.kode,
-					penerbit.nama,
+					penerbit.nama if penerbit is not None else '-',
 					konversi_format(pengadaan.tanggal, "%Y-%m-%d", "%d-%m-%Y"),
 				))
 
@@ -70,7 +70,7 @@ class ManajemenPengadaan(Manajemen) :
 		penerbit = self.app.penerbit.data.cari(data.kode_penerbit, 'kode')
 		return (
 			data.kode,
-			penerbit.nama,
+			penerbit.nama if penerbit is not None else '-',
 			konversi_format(data.tanggal, "%Y-%m-%d", "%d-%m-%Y"),
 		)
 	
@@ -78,7 +78,7 @@ class ManajemenPengadaan(Manajemen) :
 		penerbit = self.app.penerbit.data.cari(data.kode_penerbit, 'kode')
 		return (
 			data.kode,
-			penerbit.nama,
+			penerbit.nama if penerbit is not None else '-',
 			konversi_format(data.tanggal, "%Y-%m-%d", "%d-%m-%Y"),
 		)
 
