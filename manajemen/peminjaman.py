@@ -225,11 +225,9 @@ class ManajemenPeminjaman(Manajemen) :
 				return self.pengembalian(pesan=colored('Pilih kode peminjaman yang tersedia.', 'red'))
 
 			input(colored('Tekan untuk konfirmasi pengembalian...', 'yellow'))
-			self.data.update(
-				{ 'tanggal_selesai': datetime.now().strftime('%Y-%m-%d') },
-				kode_peminjaman,
-				'kode'
-			)
+			peminjaman = self.data.cari(kode_peminjaman, 'kode')
+			peminjaman.tanggal_selesai = datetime.now().strftime('%Y-%m-%d')
+			peminjaman.tetapkan_status('ubah')
 
 			buku = self.app.buku.data.cari(peminjaman.kode_buku, 'kode')
 			buku.kembalikan()
