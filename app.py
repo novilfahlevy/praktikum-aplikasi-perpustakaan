@@ -4,6 +4,7 @@ from database import Database
 from role.admin import RoleAdmin
 from role.petugas import RolePetugas
 
+from manajemen.admin import ManajemenAdmin
 from manajemen.petugas import ManajemenPetugas
 from manajemen.penerbit import ManajemenPenerbit
 from manajemen.pengadaan import ManajemenPengadaan
@@ -25,6 +26,7 @@ class App :
 
 		self.auth = Auth(self)
 
+		self.admin = ManajemenAdmin(self)
 		self.petugas = ManajemenPetugas(self)
 		self.penerbit = ManajemenPenerbit(self)
 		self.pengadaan = ManajemenPengadaan(self)

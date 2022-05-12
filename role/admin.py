@@ -27,25 +27,28 @@ class RoleAdmin(Role) :
 			tersimpan = self.tersimpan
 			print(f'{colored("Data tersimpan" if tersimpan else "Data tidak tersimpan", "green" if tersimpan else "red")} | {nama}')
 			if pesan is not None : print(pesan)
-			print('[1] Petugas')
-			print('[2] Penerbit')
-			print('[3] Pengadaan')
-			print('[4] Simpan Data')
-			print('[5] Edit Profil')
-			print(colored('[6] Keluar', 'yellow'))
+			print('[1] Admin')
+			print('[2] Petugas')
+			print('[3] Penerbit')
+			print('[4] Pengadaan')
+			print('[5] Simpan Data')
+			print('[6] Edit Profil')
+			print(colored('[7] Keluar', 'yellow'))
 			menu = input('Pilih:\n> ')
 
 			if menu == '1' :
-				return self.app.petugas.menu_manajemen_petugas()
+				return self.app.admin.menu_manajemen_admin()
 			elif menu == '2' :
-				return self.app.penerbit.menu_manajemen_penerbit()
+				return self.app.petugas.menu_manajemen_petugas()
 			elif menu == '3' :
-				return self.app.pengadaan.menu_manajemen_pengadaan()
+				return self.app.penerbit.menu_manajemen_penerbit()
 			elif menu == '4' :
-				return self.simpan_data()
+				return self.app.pengadaan.menu_manajemen_pengadaan()
 			elif menu == '5' :
-				return self.edit_profil()
+				return self.simpan_data()
 			elif menu == '6' :
+				return self.edit_profil()
+			elif menu == '7' :
 				return self.app.auth.logout()
 			else :
 				return self.menu_admin()
@@ -57,6 +60,7 @@ class RoleAdmin(Role) :
 		try :
 			if input('Simpan data (Y/n)? ').lower() == 'y' :
 				if self.tersimpan == False :
+					self.simpan_admin()
 					self.simpan_petugas()
 					self.simpan_penerbit()
 					self.simpan_pengadaan()
@@ -68,6 +72,27 @@ class RoleAdmin(Role) :
 		except Exception as e :
 			sys.exit(e)
 
+	def simpan_admin(self) -> None :
+		for _, admin in enumerate(self.app.admin.data.tolist(semua=True)) :
+			if admin.status_data == 'baru' :
+				query = 'INSERT INTO pengguna VALUES (%s, %s, %s, %s, %s, %s, %s, %s);'
+				data = (
+					admin.kode,
+					admin.nama,
+					admin.email,
+					admin.password,
+					admin.nomor_telepon,
+					admin.alamat,
+					'admin',
+					admin.tanggal_dibuat,
+				)
+				self.app.db.sql(query=query, data=data)
+			elif admin.status_data == 'hapus' :
+				query = 'DELETE FROM pengguna WHERE kode = %s;'
+				self.app.db.sql(query=query, data=(admin.kode,))
+
+		self.app.admin.data.tetapkan_sebagai_tersimpan()
+	
 	def simpan_petugas(self) -> None :
 		for _, petugas in enumerate(self.app.petugas.data.tolist(semua=True)) :
 			if petugas.status_data == 'baru' :
@@ -161,10 +186,27 @@ class RoleAdmin(Role) :
 		self.app.pengadaan.data.tetapkan_sebagai_tersimpan()
 
 	def load_data_dari_database(self) -> None :
+		self.load_data_admin_dari_database()
 		self.load_data_petugas_dari_database()
 		self.load_data_penerbit_dari_database()
 		self.load_data_pengadaan_dari_database()
 		self.tersimpan = True
+
+	def load_data_admin_dari_database(self) -> None :
+		admin = self.app.db.sql(query="SELECT * FROM pengguna WHERE role = 'admin'", hasil=lambda cursor: cursor.fetchall())
+		for _, _admin in enumerate(admin) :
+			admin_model = Pengguna()
+			admin_model.tetapkan_kode(_admin['kode'])
+			admin_model.nama = _admin['nama']
+			admin_model.email = _admin['email']
+			admin_model.password = _admin['password']
+			admin_model.nomor_telepon = _admin['nomor_telepon']
+			admin_model.alamat = _admin['alamat']
+			admin_model.role = _admin['role']
+			admin_model.tanggal_dibuat = _admin['tanggal_dibuat']
+			admin_model.status_data = 'lama'
+
+			self.app.admin.data.insert(admin_model)
 
 	def load_data_petugas_dari_database(self) -> None :
 		petugas = self.app.db.sql(query="SELECT * FROM pengguna WHERE role = 'petugas'", hasil=lambda cursor: cursor.fetchall())
