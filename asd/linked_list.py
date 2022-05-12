@@ -43,7 +43,7 @@ class LinkedList :
     current_node = self.head
     while current_node is not None :
       if isinstance(current_node.data, Model) :
-        if current_node.data.cari(nilai, kata_kunci) :
+        if current_node.data.cari(nilai, kata_kunci) and current_node.data.status_data != 'hapus' :
           return current_node.data
       current_node = current_node.next
     return None
