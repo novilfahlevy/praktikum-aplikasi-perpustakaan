@@ -43,7 +43,7 @@ class ManajemenBuku(Manajemen) :
 		except KeyboardInterrupt or EOFError :
 			return self.app.role_petugas.menu_petugas()
 
-	def tampilkan_tabel_buku(self, berhalaman=False, judul_halaman=None) :
+	def tampilkan_tabel_buku(self, berhalaman=False, judul_halaman=None, pesan=None) :
 		tabel = PrettyTable()
 		tabel.judul_halaman = 'Data Buku'
 		tabel.field_names = ('No', 'Kode', 'ISBN', 'Judul', 'Penulis', 'Genre', 'Jumlah Halaman', 'Jumlah')
@@ -53,7 +53,8 @@ class ManajemenBuku(Manajemen) :
 				queue=self.data.toqueue(),
 				tabel=tabel,
 				data_format=lambda data: self.format_data_tabel(data),
-				judul_halaman=judul_halaman
+				judul_halaman=judul_halaman,
+				pesan=pesan
 			)
 		else :
 			for i, buku in enumerate(self.data.tolist()) :
@@ -166,7 +167,7 @@ class ManajemenBuku(Manajemen) :
 
 			if pesan : print(pesan) # pesan tambahan, opsional
 
-			self.tampilkan_tabel_buku(berhalaman=True, judul_halaman=judul_halaman)
+			self.tampilkan_tabel_buku(berhalaman=True, judul_halaman=judul_halaman, pesan=pesan)
 			kode_buku = input('\nPilih kode buku:\n> ')
 
 			if kode_buku :

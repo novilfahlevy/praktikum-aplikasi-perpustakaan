@@ -1,4 +1,5 @@
 import json
+from time import sleep
 import pwinput
 from helper import bersihkan_console, hash_password
 from termcolor import colored
@@ -21,6 +22,11 @@ class Role :
 			nomor_telepon = input(f'Nomor Telepon ({profil["nomor_telepon"]}) :\n> ') or profil['nomor_telepon']
 			alamat    		= input(f'Alamat ({profil["alamat"]}) :\n> ') or profil['alamat']
 			password 			= pwinput.pwinput(prompt='Password (opsional) :\n> ')
+
+			# cek ketersediaan email
+			akun_lama = self.app.db.sql(query='SELECT kode FROM pengguna WHERE email = %s;', data=(email,), hasil=lambda cursor: cursor.fetchone())
+			if akun_lama is not None and self.app.auth.session['kode'] != akun_lama['kode'] :
+				return self.edit_profil(pesan=colored('Email sudah digunakan.', 'red'))
 
 			ganti_profil_berhasil = self.app.db.sql(
 				query='UPDATE pengguna SET nama = %s, email = %s, nomor_telepon = %s, alamat = %s WHERE kode = %s;',

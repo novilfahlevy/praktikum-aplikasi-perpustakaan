@@ -45,22 +45,23 @@ class ManajemenPeminjaman(Manajemen) :
 		except KeyboardInterrupt or EOFError :
 			return self.app.role_petugas.menu_petugas()
 
-	def tampilkan_tabel_peminjaman(self, berhalaman=True, judul_halaman=None, belum_dikembalikan=False) :
+	def tampilkan_tabel_peminjaman(self, berhalaman=True, judul_halaman=None, belum_dikembalikan=False, pesan=None) :
 		tabel = PrettyTable()
 		tabel.judul_halaman = 'Daftar Peminjaman'
 		tabel.field_names = ('No', 'Kode', 'Petugas', 'Member', 'ISBN', 'Dari', 'Sampai', 'Tenggat', 'Nominal Denda')
 
-		peminjaman = self.data.tolist(sort=lambda l, r: self.urutkan_peminjaman(l, r))
+		peminjaman = self.data.tolist(sort=lambda l, r: l.sisa_hari() < r.sisa_hari())
 
 		if belum_dikembalikan == True :
 			peminjaman = list(filter(lambda p: not bool(p.tanggal_selesai), peminjaman))
 
 		if berhalaman :
 			self.tampilkan_tabel_berhalaman(
-				queue=self.data.toqueue(),
+				queue=self.data.toqueue(sort=lambda l, r: l.sisa_hari() < r.sisa_hari()),
 				tabel=tabel,
 				data_format=lambda data: self.format_data_tabel(data),
-				judul_halaman=judul_halaman
+				judul_halaman=judul_halaman,
+				pesan=pesan
 			)
 		else :
 			for i, _peminjaman in enumerate(peminjaman) :
@@ -95,20 +96,8 @@ class ManajemenPeminjaman(Manajemen) :
 			konversi_format(data.tanggal_mulai, '%Y-%m-%d', '%d-%m-%Y'),
 			konversi_format(data.tanggal_selesai, '%Y-%m-%d', '%d-%m-%Y') if data.tanggal_selesai else '-',
 			konversi_format(data.tenggat, '%Y-%m-%d', '%d-%m-%Y'),
-			data.jumlah_denda(konversi=True),
+			data.jumlah_denda(konversi=True)
 		)
-
-	def urutkan_peminjaman(self, l, r) :
-		format_tanggal = '%Y-%m-%d'
-		hari_ini = datetime.now().strftime(format_tanggal)
-
-		tenggat_hari1 = str(l.tanggal_selesai) if l.tanggal_selesai else hari_ini
-		tenggat_hari1 = datetime.strptime(str(l.tenggat), format_tanggal) - datetime.strptime(tenggat_hari1, format_tanggal)
-
-		tenggat_hari2 = str(r.tanggal_selesai if r.tanggal_selesai else hari_ini)
-		tenggat_hari2 = datetime.strptime(str(r.tenggat), format_tanggal) - datetime.strptime(tenggat_hari2, format_tanggal)
-
-		return tenggat_hari1.days < tenggat_hari2.days
 
 	def tampilkan_peminjaman(self, pesan=None) :
 		try :
@@ -119,7 +108,7 @@ class ManajemenPeminjaman(Manajemen) :
 
 			if pesan is not None : print(pesan)
 			
-			self.tampilkan_tabel_peminjaman(berhalaman=True, judul_halaman=judul_halaman)
+			self.tampilkan_tabel_peminjaman(berhalaman=True, judul_halaman=judul_halaman, pesan=pesan)
 
 			return self.menu_manajemen_peminjaman()
 

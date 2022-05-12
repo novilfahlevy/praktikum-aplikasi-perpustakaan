@@ -7,7 +7,7 @@ class Manajemen :
     Manajemen class.
   """
 
-  def tampilkan_tabel_berhalaman(self, queue, tabel, data_format, judul_halaman=None) :
+  def tampilkan_tabel_berhalaman(self, queue, tabel, data_format, judul_halaman=None, pesan=None) :
     try :
       jumlah_data_per_halaman = 5
       jumlah_seluruh_data = queue.size()
@@ -18,8 +18,8 @@ class Manajemen :
       while aksi != '' :
         bersihkan_console()
 
-        if judul_halaman :
-          print(judul_halaman)
+        if judul_halaman : print(judul_halaman)
+        if pesan : print(pesan)
 
         print('Jumlah data : {}'.format(jumlah_seluruh_data))
         print('Bagian {} / {}'.format(halaman, jumlah_halaman))

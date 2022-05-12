@@ -17,7 +17,7 @@ class Peminjaman(Model) :
 	def sisa_hari(self) -> int :
 		hari_ini = datetime.now().strftime('%Y-%m-%d')
 		
-		tanggal_diserahkan = datetime.strptime(str(self.tanggal_selesai if self.tanggal_selesai else hari_ini), '%Y-%m-%d')
+		tanggal_diserahkan = datetime.strptime(str(self.tanggal_selesai if bool(self.tanggal_selesai) else hari_ini), '%Y-%m-%d')
 		tanggal_tenggat = datetime.strptime(str(self.tenggat), '%Y-%m-%d')
 		sisa_hari = (tanggal_diserahkan - tanggal_tenggat).days
 

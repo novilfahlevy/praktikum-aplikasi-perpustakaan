@@ -30,14 +30,6 @@ class LinkedList :
         break
       
       current_node = current_node.next
-
-  # def update(self, data, nilai, atribut=None) :
-  #   current_node = self.head
-  #   while current_node is not None :
-  #     if self.cari_data_node(current_node, nilai, atribut) :
-  #       for key in data : setattr(current_node.data, key, data[key])
-  #       if self.softdelete and current_node.data['status_data'] != 'baru' : current_node.data['status_data'] = 'ubah'
-  #     current_node = current_node.next
   
   def cari(self, nilai, kata_kunci=None) :
     current_node = self.head
@@ -80,17 +72,20 @@ class LinkedList :
     
     return result if sort is None else merge_sort(result, sort)
 
-  def toqueue(self) :
+  def toqueue(self, sort=None) :
     result = Queue()
-    node = self.head
-    while node is not None :
-      if node.data.status_data == 'hapus' :
-        node = node.next
-        continue
-      else :
-        result.enqueue(node.data)
-        node = node.next
-    
+    if sort is not None :
+      for _, data in enumerate(self.tolist(sort=sort)) :
+        result.enqueue(data)
+    else :
+      node = self.head
+      while node is not None :
+        if node.data.status_data == 'hapus' :
+          node = node.next
+          continue
+        else :
+          result.enqueue(node.data)
+          node = node.next
     return result
   
   def printlist(self) :
