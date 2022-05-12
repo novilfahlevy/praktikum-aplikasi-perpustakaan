@@ -124,11 +124,11 @@ class Database :
 		""")
 		
 		# definisi relasi
-		cursor.execute('ALTER TABLE `pengadaan` ADD CONSTRAINT pengadaan_dari_penerbit FOREIGN KEY (`kode_penerbit`) REFERENCES `penerbit` (`kode`); ON DELETE SET NULL', multi=True)
+		cursor.execute('ALTER TABLE `pengadaan` ADD CONSTRAINT pengadaan_dari_penerbit FOREIGN KEY (`kode_penerbit`) REFERENCES `penerbit` (`kode`) ON DELETE SET NULL;', multi=True)
 		cursor.execute('ALTER TABLE `buku_pengadaan` ADD CONSTRAINT buku_dari_pengadaan FOREIGN KEY (`kode_pengadaan`) REFERENCES `pengadaan` (`kode`) ON DELETE CASCADE;', multi=True)
-		cursor.execute('ALTER TABLE `peminjaman` ADD CONSTRAINT petugas_yang_menangani_peminjaman FOREIGN KEY (`kode_petugas`) REFERENCES `pengguna` (`kode`); ON DELETE SET NULL', multi=True)
-		cursor.execute('ALTER TABLE `peminjaman` ADD CONSTRAINT member_yang_meminjamn_buku FOREIGN KEY (`kode_member`) REFERENCES `pengguna` (`kode`); ON DELETE SET NULL', multi=True)
-		cursor.execute('ALTER TABLE `peminjaman` ADD CONSTRAINT buku_yang_dipinjam FOREIGN KEY (`kode_buku`) REFERENCES `buku` (`kode`); ON DELETE SET NULL', multi=True)
+		cursor.execute('ALTER TABLE `peminjaman` ADD CONSTRAINT petugas_yang_menangani_peminjaman FOREIGN KEY (`kode_petugas`) REFERENCES `pengguna` (`kode`) ON DELETE SET NULL;', multi=True)
+		cursor.execute('ALTER TABLE `peminjaman` ADD CONSTRAINT member_yang_meminjamn_buku FOREIGN KEY (`kode_member`) REFERENCES `pengguna` (`kode`) ON DELETE SET NULL;', multi=True)
+		cursor.execute('ALTER TABLE `peminjaman` ADD CONSTRAINT buku_yang_dipinjam FOREIGN KEY (`kode_buku`) REFERENCES `buku` (`kode`) ON DELETE SET NULL;', multi=True)
 		
 		# seed data
 		if seed :
