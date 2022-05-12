@@ -164,7 +164,7 @@ class ManajemenPeminjaman(Manajemen) :
 			peminjaman.kode_buku = kode_buku
 			peminjaman.tanggal_mulai = tanggal_mulai
 			peminjaman.tanggal_selesai = ''
-			peminjaman.denda = denda
+			peminjaman.denda = int(denda)
 			peminjaman.tetapkan_tenggat(durasi_hari)
 
 			buku = self.app.buku.data.cari(kode_buku, 'kode')

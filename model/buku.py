@@ -14,9 +14,12 @@ class Buku(Model) :
 
 	def tambah(self, jumlah) :
 		self.jumlah += jumlah
+		self.tetapkan_status('ubah')
 
 	def pinjam(self) -> None :
 		self.jumlah -= 1
+		self.tetapkan_status('ubah')
 	
 	def kembalikan(self) -> None :
 		self.jumlah += 1
+		self.tetapkan_status('ubah')

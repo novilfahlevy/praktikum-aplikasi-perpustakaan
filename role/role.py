@@ -16,10 +16,10 @@ class Role :
 			if pesan is not None : print(pesan)
 
 			profil = self.app.auth.session
-			nama     			= input(f'Nama ({profil.nama}) :\n> ') or profil['nama']
-			email    			= input(f'Email ({profil.email}) :\n> ') or profil['email']
-			nomor_telepon = input(f'Nomor Telepon ({profil.nomor_telepon}) :\n> ') or profil['nomor_telepon']
-			alamat    		= input(f'Alamat ({profil.alamat}) :\n> ') or profil['alamat']
+			nama     			= input(f'Nama ({profil["nama"]}) :\n> ') or profil['nama']
+			email    			= input(f'Email ({profil["email"]}) :\n> ') or profil['email']
+			nomor_telepon = input(f'Nomor Telepon ({profil["nomor_telepon"]}) :\n> ') or profil['nomor_telepon']
+			alamat    		= input(f'Alamat ({profil["alamat"]}) :\n> ') or profil['alamat']
 			password 			= pwinput.pwinput(prompt='Password (opsional) :\n> ')
 
 			ganti_profil_berhasil = self.app.db.sql(
